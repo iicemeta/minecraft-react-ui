@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import type { MenuProps } from "@/components/content/Menu";
 
 export type ListProps = {
@@ -10,9 +10,8 @@ export type ListProps = {
   selection?: ListSelectionProps;
   renderItem: (renderItemProps: RenderItemProps) => React.ReactNode;
   direction?: "row" | "column";
-  draggable: boolean;
-  itemSize: number;
-  innerRef: (ref: any) => void;
+  draggable?: boolean;
+  itemSize?: number;
 };
 
 export type Item = {
@@ -67,11 +66,7 @@ export type ListItemProps = Omit<React.HTMLProps<HTMLLIElement>, "data"> & {
   className?: string;
   index: number;
   item: Item;
-  dragging: boolean;
-  data: {
-    items: Array<ListItemProps["item"]>;
-    draggable: boolean;
-  };
+  dragging?: boolean;
 };
 
 export type ListItemSearchProps = {

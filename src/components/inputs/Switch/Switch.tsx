@@ -1,6 +1,5 @@
-import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
+import * as React from "react";
+import { cn } from "@/utils/cn";
 import "./Switch.css";
 
 export type SwitchProps = Omit<
@@ -19,19 +18,7 @@ export type SwitchProps = Omit<
 };
 
 const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
-  (
-    {
-      onChange,
-      disabled,
-      className,
-      value,
-      indeterminate,
-      label,
-      onClick,
-      ...rest
-    },
-    ref?
-  ) => {
+  ({ onChange, disabled, className, value, indeterminate, label, onClick, ...rest }, ref) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       onChange(event.target.checked, event);
     };
@@ -51,12 +38,6 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
   }
 );
 
-Switch.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  indeterminate: PropTypes.bool,
-  disabled: PropTypes.bool,
-  value: PropTypes.bool.isRequired,
-  className: PropTypes.string,
-};
+Switch.displayName = "Switch";
 
 export default Switch;

@@ -1,9 +1,13 @@
 import React, { useEffect, useImperativeHandle } from "react";
 import ReactDOM from "react-dom";
-import PropTypes from "prop-types";
-import { Placement } from "@popperjs/core";
-import { usePopper } from "react-popper";
-import cn from "classnames";
+import {
+  useFloating,
+  autoUpdate,
+  offset as offsetMiddleware,
+  arrow as arrowMiddleware,
+  type Placement,
+} from "@floating-ui/react-dom";
+import { cn } from "@/utils/cn";
 import "./Tooltip.css";
 
 type TooltipProps = {
@@ -13,110 +17,91 @@ type TooltipProps = {
   trigger?: "hover" | "click";
 };
 
-const Tooltip = React.forwardRef(({ content, children, placement, trigger }: TooltipProps, ref: any) => {
-  const [visible, setVisible] = React.useState<boolean>(false);
-  const [referenceElement, setReferenceElement] = React.useState<HTMLSpanElement | null>();
-  const [popperElement, setPopperElement] = React.useState<HTMLDivElement | null>(null);
-  const [arrowElement, setArrowElement] = React.useState<HTMLSpanElement | null>();
-  const instance = usePopper(referenceElement, popperElement, {
-    placement,
-    modifiers: [
-      {
-        name: "arrow",
-        options: {
-          element: arrowElement,
-          padding: 0,
-        },
-      },
-    ],
-  });
-  const { styles, attributes } = instance;
+const Tooltip = React.forwardRef(
+  ({ content, children, placement = "bottom", trigger = "hover" }: TooltipProps, ref: any) => {
+    const [visible, setVisible] = React.useState<boolean>(false);
+    const [arrowElement, setArrowElement] = React.useState<HTMLElement | null>(null);
 
-  useImperativeHandle(ref, () => instance);
+    const { refs, floatingStyles, elements, update, middlewareData } = useFloating({
+      placement,
+      open: visible,
+      middleware: [offsetMiddleware(0), arrowMiddleware({ element: arrowElement, padding: 0 })],
+      whileElementsMounted: autoUpdate,
+    });
 
-  const handleMouseEnter = (event: React.MouseEvent) => {
-    if (trigger === "hover") {
-      setVisible(true);
-    }
-  };
-  const handleMouseLeave = (event: React.MouseEvent) => {
-    if (trigger === "hover") {
-      setVisible(false);
-    }
-  };
-  const handleMouseDown = (event: React.MouseEvent) => {
-    if (trigger === "click") {
-      setVisible(!visible);
-    }
-  };
+    useImperativeHandle(ref, () => ({ update, middlewareData, elements, floatingStyles, placement }));
 
-  useEffect(() => {
-    if (visible && trigger === "click") {
-      const handler: (event: MouseEvent | TouchEvent) => void = (event) => {
-        if (
-          !referenceElement?.contains(event.target as HTMLElement) &&
-          !popperElement?.contains(event.target as HTMLElement)
-        ) {
-          setVisible(false);
-        }
-      };
-      document.addEventListener("touchstart", handler);
-      document.addEventListener("mousedown", handler);
-      return () => {
-        document.removeEventListener("touchstart", handler);
-        document.removeEventListener("mousedown", handler);
-      };
-    }
-  }, [visible, trigger, referenceElement, popperElement]);
+    const handleMouseEnter = () => {
+      if (trigger === "hover") setVisible(true);
+    };
+    const handleMouseLeave = () => {
+      if (trigger === "hover") setVisible(false);
+    };
+    const handleMouseDown = () => {
+      if (trigger === "click") setVisible(!visible);
+    };
 
-  return (
-    <>
-      <span
-        ref={setReferenceElement}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onMouseDown={handleMouseDown}
-        className={cn("TooltipTarget", { visible })}
-      >
-        {children}
-      </span>
-      {visible &&
-        ReactDOM.createPortal(
-          <div
-            ref={setPopperElement}
-            style={styles.popper}
-            className={cn("Tooltip", {
-              ["Tooltip_visible"]: visible,
-              [`Tooltip_${placement}`]: true,
-            })}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            {...attributes.popper}
-          >
-            <span
-              ref={setArrowElement}
-              data-popper-arrow
-              style={styles.arrow}
-              className={cn("TooltipArrow")}
-              {...attributes.arrow}
-            />
-            <div className={cn("TooltipWrapper")}>{content}</div>
-          </div>,
-          document.querySelector("body")!
-        )}
-    </>
-  );
-});
+    useEffect(() => {
+      if (visible && trigger === "click") {
+        const referenceEl = elements.reference as HTMLElement | null;
+        const floatingEl = elements.floating as HTMLElement | null;
+        const handler = (event: MouseEvent | TouchEvent) => {
+          if (
+            !referenceEl?.contains(event.target as Node) &&
+            !floatingEl?.contains(event.target as Node)
+          ) {
+            setVisible(false);
+          }
+        };
+        document.addEventListener("touchstart", handler);
+        document.addEventListener("mousedown", handler);
+        return () => {
+          document.removeEventListener("touchstart", handler);
+          document.removeEventListener("mousedown", handler);
+        };
+      }
+    }, [visible, trigger, elements.reference, elements.floating]);
 
-Tooltip.propTypes = {
-  content: PropTypes.node.isRequired,
-  children: PropTypes.node.isRequired,
-  trigger: PropTypes.oneOf(["hover", "click"]),
-};
+    const arrowX = middlewareData.arrow?.x ?? 0;
+    const arrowY = middlewareData.arrow?.y ?? 0;
 
-Tooltip.defaultProps = {
-  placement: "bottom",
-  trigger: "hover",
-};
+    return (
+      <>
+        <span
+          ref={refs.setReference}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onMouseDown={handleMouseDown}
+          className={cn("TooltipTarget", { visible })}
+        >
+          {children}
+        </span>
+        {visible &&
+          ReactDOM.createPortal(
+            <div
+              ref={refs.setFloating}
+              style={floatingStyles}
+              className={cn("Tooltip", {
+                Tooltip_visible: visible,
+                [`Tooltip_${placement}`]: true,
+              })}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <span
+                ref={setArrowElement}
+                style={{ left: arrowX, top: arrowY }}
+                className={cn("TooltipArrow")}
+              />
+              <div className={cn("TooltipWrapper")}>{content}</div>
+            </div>,
+            document.body
+          )}
+      </>
+    );
+  }
+);
+
+Tooltip.displayName = "Tooltip";
 
 export default Tooltip;

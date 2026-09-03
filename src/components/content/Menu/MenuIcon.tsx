@@ -1,9 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
+import * as React from "react";
+import { cn } from "@/utils/cn";
 import "./MenuIcon.css";
 
-type MenuIconProps = {
+export type MenuIconProps = {
   className?: string;
 };
 
@@ -15,10 +14,6 @@ const MenuIcon = ({ className }: MenuIconProps) => {
       </svg>
     </i>
   );
-};
-
-MenuIcon.propTypes = {
-  className: PropTypes.string,
 };
 
 export default MenuIcon;

@@ -1,71 +1,74 @@
-import React, { useEffect, CSSProperties } from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
-import AutoSizer from "react-virtualized-auto-sizer";
-import { FixedSizeList, areEqual } from "react-window";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import * as React from "react";
+import {
+  DndContext,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
+import { cn } from "@/utils/cn";
 import ListItem from "./ListItem";
 import ListOptions from "./ListOptions";
 import { ListContextProvider } from "./ListContext";
 import type { Item, ListProps, ListItemProps } from "./types";
 import "./List.css";
 
-type AutoSizerProps = {
-  width: number;
-  height: number;
-};
-
-type DragDropItemProps = ListItemProps & {
-  provided?: any;
-  isDragging?: boolean;
-  isScrolling?: boolean;
-};
-
-const DragDropListItem = React.memo<{
+type SortableListItemProps = {
   index: number;
-  style: CSSProperties;
-  isScrolling?: boolean;
-  data: { items: Array<Item>; draggable: boolean };
-}>((props) => {
+  item: Item;
+  items: Array<Item>;
+  draggable: boolean;
+  itemSize: number;
+};
+
+const SortableListItem = ({
+  index,
+  item,
+  items,
+  draggable,
+}: SortableListItemProps) => {
   const {
-    index,
-    data: { items, draggable },
-    isScrolling,
-    style,
-  } = props;
-  return (
-    <Draggable
-      isDragDisabled={!draggable || isScrolling}
-      draggableId={items[index].id}
-      index={index}
-      key={items[index].id}
-    >
-      {(provided: any, snapshot: any) => {
-        return (
-          <ListItem
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            {...props}
-            index={index}
-            item={items[index]}
-            dragging={snapshot.isDragging}
-            ref={provided.innerRef}
-            style={{
-              ...style,
-              ...provided.draggableProps.style,
-              ...(snapshot.isDragging && {
-                transform: `${provided.draggableProps.style.transform} scale(1.1)`,
-              }),
-            }}
-            className={cn({
-              [`ListItem_dragging`]: snapshot.isDraggin,
-            })}
-          />
-        );
-      }}
-    </Draggable>
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: item.id,
+    disabled: !draggable,
+  });
+
+  const style = React.useMemo<React.CSSProperties>(
+    () => ({
+      transform: CSS.Translate.toString(transform),
+      transition,
+    }),
+    [transform, transition]
   );
-}, areEqual);
+
+  return (
+    <ListItem
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      item={item}
+      index={index}
+      dragging={isDragging}
+      style={style}
+    />
+  );
+};
 
 const List = React.forwardRef<HTMLUListElement, ListProps>(
   (
@@ -76,53 +79,59 @@ const List = React.forwardRef<HTMLUListElement, ListProps>(
       selection,
       menu,
       search,
-      draggable,
-      itemSize,
+      draggable = false,
+      itemSize = 48,
     },
     ref
   ) => {
-    const [localItems, setLocalItems] =
-      React.useState<ListProps["items"]>(items);
-
-    const handleDropEnd = (result: any) => {
-      const {
-        source: { index: sourceIndex },
-        destination,
-      } = result;
-      setDragging(false);
-      if (destination && sourceIndex !== destination.index) {
-        setLocalItems(([...localItems]) => {
-          const [removed] = localItems.splice(sourceIndex, 1);
-          localItems.splice(destination.index, 0, removed);
-          return localItems;
-        });
-      }
-    };
-
+    const [localItems, setLocalItems] = React.useState<Array<Item>>(items);
     const [dragging, setDragging] = React.useState<boolean>(false);
+    const [selectedIds, setSelectedIds] = React.useState<Array<Item["id"]>>(
+      selection?.initialSelectedIds || []
+    );
+    const [keywords, setKeywords] = React.useState<string>("");
+    const [currentResultItemIndex, setCurrentResultItemIndex] = React.useState<number>(-1);
 
-    const handleDragStart = ({ draggableId }: any) => {
+    const scrollRef = React.useRef<HTMLDivElement>(null);
+
+    const itemSelected = (item: Item) => selectedIds.includes(item.id);
+
+    React.useEffect(() => {
+      setLocalItems(items);
+    }, [items]);
+
+    const virtualizer = useVirtualizer({
+      count: localItems.length,
+      getScrollElement: () => scrollRef.current,
+      estimateSize: () => itemSize,
+      overscan: 10,
+    });
+
+    const handleDragStart = () => {
       if (window.navigator.vibrate) {
         window.navigator.vibrate(100);
       }
       setDragging(true);
     };
 
-    const [selectedIds, setSelectedIds] = React.useState<Array<Item["id"]>>(
-      selection?.initialSelectedIds || []
-    );
-
-    const itemSelected = (item: Item) => {
-      return selectedIds.includes(item.id);
+    const handleDragEnd = ({ active, over }: DragEndEvent) => {
+      setDragging(false);
+      if (over && active.id !== over.id) {
+        const oldIndex = localItems.findIndex((item) => item.id === active.id);
+        const newIndex = localItems.findIndex((item) => item.id === over.id);
+        if (oldIndex !== -1 && newIndex !== -1) {
+          setLocalItems((prev) => arrayMove(prev, oldIndex, newIndex));
+        }
+      }
     };
 
-    const [keywords, setKeywokds] = React.useState<string>("Item 22");
-    const [currentResultItemIndex, setCurrentResultItemIndex] =
-      React.useState<number>(-1);
+    const sensors = useSensors(
+      useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+      useSensor(TouchSensor),
+      useSensor(KeyboardSensor)
+    );
 
-    const listRef = React.useRef<any>(null);
-
-    useEffect(() => {
+    React.useEffect(() => {
       if (search) {
         if (!keywords) {
           setCurrentResultItemIndex(-1);
@@ -132,7 +141,7 @@ const List = React.forwardRef<HTMLUListElement, ListProps>(
           );
         }
       }
-    }, [keywords]);
+    }, [keywords, items, search]);
 
     const nextResult = () => {
       if (search) {
@@ -147,9 +156,7 @@ const List = React.forwardRef<HTMLUListElement, ListProps>(
           );
           if (nextResultIndex === -1) {
             setCurrentResultItemIndex(
-              items.findIndex((item, index) =>
-                search.searchItem(item, keywords)
-              )
+              items.findIndex((item, index) => search.searchItem(item, keywords))
             );
           } else {
             setCurrentResultItemIndex(nextResultIndex);
@@ -183,11 +190,11 @@ const List = React.forwardRef<HTMLUListElement, ListProps>(
       }
     };
 
-    useEffect(() => {
+    React.useEffect(() => {
       if (currentResultItemIndex > -1) {
-        listRef.current.scrollToItem(currentResultItemIndex, "center");
+        virtualizer.scrollToIndex(currentResultItemIndex, { align: "center" });
       }
-    }, [currentResultItemIndex]);
+    }, [currentResultItemIndex, virtualizer]);
 
     return (
       <ListContextProvider
@@ -195,91 +202,73 @@ const List = React.forwardRef<HTMLUListElement, ListProps>(
           items,
           menu,
           renderItem,
-          search: search && {
-            ...search,
-            keywords,
-            onChange: setKeywokds,
-            next: nextResult,
-            prev: prevResult,
-            currentResultItemIndex,
-          },
-          selection: selection && {
-            ...selection,
-            selectedIds,
-            setSelectedIds,
-            itemSelected,
-          },
+          search:
+            search && {
+              ...search,
+              keywords,
+              onChange: setKeywords,
+              next: nextResult,
+              prev: prevResult,
+              currentResultItemIndex,
+            },
+          selection:
+            selection && {
+              ...selection,
+              selectedIds,
+              setSelectedIds,
+              itemSelected,
+            },
         }}
       >
-        <DragDropContext
+        <DndContext
+          sensors={sensors}
           onDragStart={handleDragStart}
-          onDragEnd={handleDropEnd}
+          onDragEnd={handleDragEnd}
         >
-          <Droppable
-            droppableId={"List"}
-            mode="virtual"
-            renderClone={(provided: any, snapshot: any, rubric: any) => {
-              console.log(provided.draggableProps.style.transform);
-              return (
-                <ListItem
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                  style={{
-                    ...provided.draggableProps.style,
-                    transform: `${
-                      provided.draggableProps.style.transform || ""
-                    } scale(1.02)`,
-                  }}
-                  ref={provided.innerRef}
-                  dragging={snapshot.isDragging}
-                  item={localItems[rubric.source.index]}
-                  index={rubric.source.index}
-                />
-              );
-            }}
+          <SortableContext
+            items={localItems.map((item) => item.id)}
+            strategy={verticalListSortingStrategy}
           >
-            {(dropProvided: any) => {
-              return (
-                <div className={cn("ListContainer", className)}>
-                  <ListOptions />
-                  <AutoSizer className="ListAutoSizer">
-                    {({ width, height }: AutoSizerProps) => (
-                      <FixedSizeList
-                        className={cn("List", className, "List_dragging")}
-                        ref={listRef}
-                        outerRef={dropProvided.innerRef}
-                        height={height}
-                        width={width}
-                        itemCount={localItems.length}
-                        innerElementType={"ul"}
-                        itemSize={itemSize}
-                        itemData={{ items: localItems, draggable }}
+            <div ref={scrollRef} className={cn("ListContainer", className)}>
+              <ListOptions />
+              <div className={cn("ListScroll", { List_dragging: dragging })}>
+                <ul ref={ref} className={cn("List")} style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
+                  {virtualizer.getVirtualItems().map((virtualItem) => {
+                    const item = localItems[virtualItem.index];
+                    if (!item) return null;
+                    return (
+                      <div
+                        key={item.id}
+                        data-index={virtualItem.index}
+                        ref={virtualizer.measureElement}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          transform: `translateY(${virtualItem.start}px)`,
+                        }}
                       >
-                        {DragDropListItem}
-                      </FixedSizeList>
-                    )}
-                  </AutoSizer>
-                </div>
-              );
-            }}
-          </Droppable>
-        </DragDropContext>
+                        <SortableListItem
+                          index={virtualItem.index}
+                          item={item}
+                          items={localItems}
+                          draggable={draggable}
+                          itemSize={itemSize}
+                        />
+                      </div>
+                    );
+                  })}
+                </ul>
+              </div>
+            </div>
+          </SortableContext>
+        </DndContext>
       </ListContextProvider>
     );
   }
 );
 
-List.propTypes = {
-  className: PropTypes.string,
-  renderItem: PropTypes.func.isRequired,
-  items: PropTypes.arrayOf(PropTypes.any).isRequired,
-  selection: PropTypes.any,
-  direction: PropTypes.oneOf(["column", "row"]),
-};
-
-List.defaultProps = {
-  direction: "row",
-  itemSize: 48,
-};
+List.displayName = "List";
 
 export default List;

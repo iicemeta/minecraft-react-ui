@@ -1,6 +1,5 @@
-import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
+import * as React from "react";
+import { cn } from "@/utils/cn";
 import "./Checkbox.css";
 
 export type CheckboxProps = Omit<
@@ -18,7 +17,7 @@ export type CheckboxProps = Omit<
   label?: string;
 };
 
-const Checkbox = React.forwardRef(
+const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   (
     {
       onChange,
@@ -29,8 +28,8 @@ const Checkbox = React.forwardRef(
       label,
       onClick,
       ...rest
-    }: CheckboxProps,
-    ref?: React.Ref<HTMLInputElement>
+    },
+    ref
   ) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       onChange(event.target.checked, event);
@@ -51,12 +50,6 @@ const Checkbox = React.forwardRef(
   }
 );
 
-Checkbox.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  indeterminate: PropTypes.bool,
-  disabled: PropTypes.bool,
-  value: PropTypes.bool.isRequired,
-  className: PropTypes.string,
-};
+Checkbox.displayName = "Checkbox";
 
 export default Checkbox;

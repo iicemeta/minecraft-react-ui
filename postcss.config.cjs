@@ -1,4 +1,4 @@
-const path = require("path");
+const path = require("node:path");
 const postcssImport = require("postcss-import");
 const postcssMixins = require("postcss-mixins");
 const autoprefixer = require("autoprefixer");
@@ -9,7 +9,7 @@ module.exports = {
       path: [path.resolve(__dirname, "src/styles")],
     }),
     postcssMixins({
-      mixinsDir: ["src/styles/mixins"],
+      mixinsDir: [path.resolve(__dirname, "src/styles/mixins")],
     }),
     autoprefixer(),
   ],

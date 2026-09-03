@@ -1,9 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
+import * as React from "react";
+import { cn } from "@/utils/cn";
+import "./Menu.css";
 import MenuItem from "./MenuItem";
 import type { MenuItemProps } from "./MenuItem";
-import "./Menu.css";
 
 export type MenuProps = {
   items: Array<MenuItemProps>;
@@ -20,9 +19,5 @@ const Menu = React.forwardRef<HTMLDivElement, MenuProps>(({ items }, ref) => {
 });
 
 Menu.displayName = "Menu";
-
-Menu.propTypes = {
-  items: PropTypes.array.isRequired,
-};
 
 export default Menu;

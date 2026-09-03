@@ -1,6 +1,5 @@
-import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
+import * as React from "react";
+import { cn } from "@/utils/cn";
 import "./Input.css";
 
 export type InputProps = Omit<React.HTMLProps<HTMLInputElement>, "onChange"> & {
@@ -29,8 +28,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
-Input.propTypes = {
-  onChange: PropTypes.func.isRequired,
-};
+Input.displayName = "Input";
 
 export default Input;

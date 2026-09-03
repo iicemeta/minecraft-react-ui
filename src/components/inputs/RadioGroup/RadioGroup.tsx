@@ -1,8 +1,7 @@
-import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
-import Radio from "@/components/inputs/Radio";
+import * as React from "react";
+import { cn } from "@/utils/cn";
 import "./RadioGroup.css";
+import Radio from "@/components/inputs/Radio";
 
 export type RadioGroupOption = {
   label: string;
@@ -23,7 +22,7 @@ export type RadioGroupProps = Omit<React.HTMLProps<HTMLDivElement>, "onChange" |
 };
 
 const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
-  ({ name, value, onChange, options, disabled, readOnly, className, direction }, ref?) => {
+  ({ name, value, onChange, options, disabled, readOnly, className, direction = "column" }, ref) => {
     const optionId = (option: RadioGroupOption) => `${name}-${option.value}`;
     const handleChange = (option: RadioGroupOption, event: React.ChangeEvent<HTMLInputElement>) => {
       onChange(option.value, event);
@@ -62,14 +61,6 @@ const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
   },
 );
 
-RadioGroup.propTypes = {
-  name: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  direction: PropTypes.oneOf(["column", "row"]),
-};
-
-RadioGroup.defaultProps = {
-  direction: "column",
-};
+RadioGroup.displayName = "RadioGroup";
 
 export default RadioGroup;

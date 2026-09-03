@@ -1,6 +1,5 @@
 import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
+import { cn } from "@/utils/cn";
 import Input from "@/components/inputs/Input";
 import Menu from "@/components/content/Menu";
 import Button from "@/components/buttons/Button";
@@ -8,22 +7,22 @@ import Dropdown from "@/components/layers/Dropdown";
 import type { DropdownTargetProps } from "@/components/layers/Dropdown";
 import "./Select.css";
 
-type SelectOption = {
+export type SelectOption = {
   label: string;
   value: string;
   disabled?: boolean;
 };
 
-type SelectProps = {
+export type SelectProps = {
   value?: string;
   options: Array<SelectOption>;
   onChange: (value?: string) => void;
-  onFocus: (event: React.FocusEvent<HTMLInputElement>) => void;
-  onBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
-  className: string;
+  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  className?: string;
   disabled?: boolean;
-  placeholder: string;
-  searchPlaceholder: string;
+  placeholder?: string;
+  searchPlaceholder?: string;
 };
 
 const Select = ({
@@ -34,8 +33,8 @@ const Select = ({
   placeholder,
   searchPlaceholder,
   onChange,
-  onFocus,
-  onBlur,
+  onFocus = () => {},
+  onBlur = () => {},
 }: SelectProps) => {
   const [focus, setFocus] = React.useState<boolean>(false);
   const [filter, setFilter] = React.useState<string>("");
@@ -72,23 +71,15 @@ const Select = ({
     );
   });
 
-  const inputPlaceholder = (() => {
-    if (focus && searchPlaceholder) {
-      return searchPlaceholder;
-    }
-    return placeholder;
-  })();
+  const inputPlaceholder = focus && searchPlaceholder ? searchPlaceholder : placeholder;
 
   const selectedOption = options.find((option) => option.value === value);
 
-  const inputValue = (() => {
-    if (focus) {
-      return filter;
-    } else if (value && selectedOption) {
-      return selectedOption.label;
-    }
-    return "";
-  })();
+  const inputValue = focus
+    ? filter
+    : value && selectedOption
+      ? selectedOption.label
+      : "";
 
   return (
     <Dropdown
@@ -107,9 +98,9 @@ const Select = ({
         <div
           ref={ref}
           className={cn(className, dropdownClassName, "Select", {
-            ["Select_disabled"]: disabled,
-            ["Select_focus"]: focus,
-            ["Select_visible"]: visible,
+            Select_disabled: disabled,
+            Select_focus: focus,
+            Select_visible: visible,
           })}
         >
           <Input
@@ -154,25 +145,6 @@ const Select = ({
       )}
     />
   );
-};
-
-Select.propTypes = {
-  label: PropTypes.string,
-  value: PropTypes.string,
-  placeholder: PropTypes.string,
-  searchPlaceholder: PropTypes.string,
-  disabled: PropTypes.bool,
-  options: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string,
-      value: PropTypes.string,
-      disabled: PropTypes.bool,
-    }),
-  ),
-};
-Select.defaultProps = {
-  onFocus: () => {},
-  onBlur: () => {},
 };
 
 export default Select;

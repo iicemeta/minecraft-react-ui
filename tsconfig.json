@@ -1,23 +1,22 @@
 {
   "compilerOptions": {
-    // Default
-    "target": "es5",
-    "esModuleInterop": true,
-
-    // Added
-    "jsx": "react",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "declaration": true,
-    "declarationDir": ".",
-    "sourceMap": true,
-    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    "lib": ["es6", "dom", "es2016", "es2017"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/components/*": ["src/components/*"]
+      "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "build", "storybook-static", "src/**/*.stories.tsx", "src/**/*.test.tsx"]
+  "include": ["src", "demo", "vite.config.ts"]
 }

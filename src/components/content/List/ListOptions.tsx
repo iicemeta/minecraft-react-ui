@@ -1,6 +1,5 @@
 import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
+import { cn } from "@/utils/cn";
 import DropdownMenu from "@/components/content/DropdownMenu";
 import Checkbox from "@/components/inputs/Checkbox";
 import Input from "@/components/inputs/Input";
@@ -56,13 +55,13 @@ const ListOptions = React.forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElem
             value={search.keywords}
             onChange={(keywords) => search.onChange(keywords)}
             onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-              var key = event.key || event.keyCode;
+              const key = event.key || (event as any).keyCode;
               if ((key === "Enter" && event.shiftKey) || key === "ArrowUp") {
                 event.preventDefault();
-                search.prev(event);
+                (search.prev as any)(event);
               } else if (key === "Enter" || key === "ArrowDown") {
                 event.preventDefault();
-                search.next(event);
+                (search.next as any)(event);
               }
             }}
           />
@@ -72,9 +71,5 @@ const ListOptions = React.forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElem
     );
   },
 );
-
-ListOptions.propTypes = {
-  className: PropTypes.string,
-};
 
 export default ListOptions;

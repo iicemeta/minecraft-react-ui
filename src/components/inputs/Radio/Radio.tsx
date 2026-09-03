@@ -1,6 +1,5 @@
-import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
+import * as React from "react";
+import { cn } from "@/utils/cn";
 import "./Radio.css";
 
 export type RadioProps = Omit<
@@ -16,10 +15,7 @@ export type RadioProps = Omit<
 };
 
 const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
-  (
-    { onChange, disabled, className, value, checked, indeterminate, ...rest },
-    ref?
-  ) => {
+  ({ onChange, disabled, className, value, checked, indeterminate, ...rest }, ref) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       onChange(event.target.value, event);
     };
@@ -40,13 +36,6 @@ const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
   }
 );
 
-Radio.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  indeterminate: PropTypes.bool,
-  disabled: PropTypes.bool,
-  value: PropTypes.string.isRequired,
-  checked: PropTypes.bool,
-  className: PropTypes.string,
-};
+Radio.displayName = "Radio";
 
 export default Radio;

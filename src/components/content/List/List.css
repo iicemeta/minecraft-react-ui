@@ -7,6 +7,23 @@
   flex: 1;
 }
 
+/* Virtualized scroll layout (TanStack Virtual) */
+.ListContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.ListScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.List {
+  margin: 0;
+  padding: 0;
+}
+
 .List_row {
   flex-direction: row;
   justify-content: flex-start;

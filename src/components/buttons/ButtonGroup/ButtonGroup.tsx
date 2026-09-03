@@ -1,6 +1,5 @@
 import * as React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
+import { cn } from "@/utils/cn";
 import "./ButtonGroup.css";
 import Button from "@/components/buttons/Button";
 import { ButtonProps } from "@/components/buttons/Button/Button.types";
@@ -16,8 +15,6 @@ export type ButtonGroupProps = {
 };
 
 const ButtonGroup = ({ options, disabled, className, onChange, value }: ButtonGroupProps) => {
-  console.log("ButtonGroup", value);
-  console.log(onChange);
   const handleClick = (option: ButtonGroupOptionProps, event: React.MouseEvent<HTMLButtonElement>) => {
     if (option.onClick) {
       option.onClick(event);
@@ -46,15 +43,6 @@ const ButtonGroup = ({ options, disabled, className, onChange, value }: ButtonGr
     </div>
   );
 };
-
-ButtonGroup.propTypes = {
-  value: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  disabled: PropTypes.bool,
-  className: PropTypes.string,
-};
-
-ButtonGroup.defaultProps = {};
 
 ButtonGroup.displayName = "ButtonGroup";
 

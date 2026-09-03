@@ -1,19 +1,19 @@
 import React from "react";
-import PropTypes from "prop-types";
-import Dropdown, { DropdownProps } from "@/components/layers/Dropdown";
+import Dropdown, { type DropdownProps } from "@/components/layers/Dropdown";
 import Button from "@/components/buttons/Button";
-import Menu, { MenuProps, MenuIcon } from "@/components/content/Menu";
-import { ButtonProps } from "@/components/buttons/Button/Button.types";
+import Menu, { type MenuProps } from "@/components/content/Menu";
+import { MenuIcon } from "@/components/content/Menu";
+import type { ButtonProps } from "@/components/buttons/Button/Button.types";
 
 export type DropdownMenuProps = MenuProps & ButtonProps & DropdownProps;
 
 const DropdownMenu = ({
   items,
-  placement,
+  placement = "bottom-start",
   className,
   onClick,
   tabIndex,
-}: MenuProps & ButtonProps & Omit<DropdownProps, "target" | "content">) => {
+}: MenuProps & ButtonProps & { placement?: DropdownProps["placement"] }) => {
   return (
     <Dropdown
       closeOnClickOutside
@@ -21,20 +21,17 @@ const DropdownMenu = ({
       placement={placement}
       content={<Menu items={items} />}
       target={
-        <Button onClick={onClick} variant={"clear"} className={className} tabIndex={tabIndex}>
+        <Button
+          onClick={onClick}
+          variant={"clear"}
+          className={className}
+          tabIndex={tabIndex as any}
+        >
           <MenuIcon />
         </Button>
       }
     />
   );
-};
-
-DropdownMenu.propTypes = {
-  placement: PropTypes.string,
-};
-
-DropdownMenu.defaultProps = {
-  placement: "bottom-start",
 };
 
 export default DropdownMenu;

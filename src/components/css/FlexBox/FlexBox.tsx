@@ -1,31 +1,33 @@
-import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
+import * as React from "react";
+import { cn } from "@/utils/cn";
 import "./FlexBox.css";
 
-type FlexBoxProps = {
-  direction: "row" | "col";
-  align: "flex-start" | "flex-end" | "center" | "stretch";
-  justify:
+export type FlexBoxProps = {
+  direction?: "row" | "col";
+  align?: "flex-start" | "flex-end" | "center" | "stretch";
+  justify?:
     | "flex-start"
     | "flex-end"
     | "center"
     | "space-between"
     | "space-around";
-  wrap: "wrap" | "nowrap";
+  wrap?: "wrap" | "nowrap";
   className?: string;
+  style?: React.CSSProperties;
   children: React.ReactNode;
 };
 
 const FlexBox = ({
-  direction,
-  align,
-  justify,
+  direction = "row",
+  align = "flex-start",
+  justify = "flex-start",
   className,
+  style,
   children,
 }: FlexBoxProps) => {
   return (
     <div
+      style={style}
       className={cn("FlexBox", className, {
         [`FlexBox_${direction}`]: true,
         [`FlexBox_justify_${justify}`]: true,
@@ -36,21 +38,6 @@ const FlexBox = ({
       {children}
     </div>
   );
-};
-
-FlexBox.propTypes = {
-  direction: PropTypes.oneOf(["row", "col"]),
-  align: PropTypes.oneOf(["flex-start", "flex-end", "center"]),
-  justify: PropTypes.oneOf(["flex-start", "flex-end", "center"]),
-  wrap: PropTypes.oneOf(["wrap", "nowrap"]),
-  children: PropTypes.node,
-};
-
-FlexBox.defaultProps = {
-  direction: "row",
-  align: "flex-start",
-  justify: "flex-start",
-  wrap: "nowrap",
 };
 
 export default FlexBox;

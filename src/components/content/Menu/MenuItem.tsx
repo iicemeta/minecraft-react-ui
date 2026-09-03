@@ -1,14 +1,12 @@
-import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
+import * as React from "react";
+import { cn } from "@/utils/cn";
 import "./MenuItem.css";
 
-export type MenuItemProps = React.HTMLProps<HTMLInputElement> & {
+export type MenuItemProps = React.HTMLAttributes<HTMLDivElement> & {
   id: string;
   label: React.ReactNode;
   onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   disabled?: boolean;
-  [key: string]: any;
 };
 
 const MenuItem = ({ label, onClick, disabled, ...rest }: MenuItemProps) => {
@@ -21,13 +19,6 @@ const MenuItem = ({ label, onClick, disabled, ...rest }: MenuItemProps) => {
       {label}
     </div>
   );
-};
-
-MenuItem.propTypes = {
-  id: PropTypes.string.isRequired,
-  label: PropTypes.node.isRequired,
-  onClick: PropTypes.func,
-  disabled: PropTypes.bool,
 };
 
 export default MenuItem;

@@ -1,9 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import PropTypes from "prop-types";
-import { Placement } from "@popperjs/core";
-import { usePopper } from "react-popper";
-import cn from "classnames";
+import { useFloating, autoUpdate, type Placement } from "@floating-ui/react-dom";
+import { cn } from "@/utils/cn";
 import "./Dropdown.css";
 
 export type DropdownTargetProps = {
@@ -14,9 +12,7 @@ export type DropdownTargetProps = {
   className: string;
 };
 
-export type TargetFunction = (
-  targetProps: DropdownTargetProps
-) => React.ReactNode;
+export type TargetFunction = (targetProps: DropdownTargetProps) => React.ReactNode;
 
 export type Target =
   | React.ReactElement<any, string | React.JSXElementConstructor<any>>
@@ -25,16 +21,8 @@ export type Target =
 export type DropdownProps = {
   content: React.ReactNode;
   target: Target;
-  /**
-   * If true, Dropdown closes by clicking on the content.
-   */
   closeOnClickContent?: boolean;
-
-  /**
-   * If true, Dropdown closes by clicking outside the content.
-   */
   closeOnClickOutside?: boolean;
-
   placement?: Placement;
   trigger?: "click" | "hover";
 };
@@ -42,40 +30,39 @@ export type DropdownProps = {
 const Dropdown = ({
   content,
   target,
-  placement,
+  placement = "bottom-start",
   closeOnClickContent,
   closeOnClickOutside,
-  trigger,
+  trigger = "click",
 }: DropdownProps) => {
   const [visible, setVisible] = React.useState<boolean>(false);
-  const [referenceElement, setReferenceElement] =
-    React.useState<HTMLDivElement | null>();
-  const [popperElement, setPopperElement] =
-    React.useState<HTMLDivElement | null>();
 
-  const instance = usePopper(referenceElement, popperElement, {
+  const { refs, floatingStyles, elements } = useFloating({
     placement,
-    modifiers: [],
+    open: visible,
+    whileElementsMounted: autoUpdate,
   });
-  const { styles, attributes } = instance;
 
-  const handleMouseDown = (event: React.MouseEvent) => {
+  const handleMouseDown = () => {
     setVisible(!visible);
   };
 
-  const handleMouseEnter = (event: React.MouseEvent) => {
+  const handleMouseEnter = () => {
     if (trigger === "hover" && !visible) {
       setVisible(true);
     }
   };
 
-  const handleMouseLeave = (event: React.MouseEvent) => {
+  const handleMouseLeave = () => {
     if (trigger === "hover" && visible) {
       setVisible(false);
     }
   };
 
-  const handleClickOnContent = (event: React.MouseEvent) => {
+  const referenceEl = elements.reference as HTMLElement | null;
+  const floatingEl = elements.floating as HTMLElement | null;
+
+  const handleClickOnContent = () => {
     if (closeOnClickContent) {
       setVisible(false);
     }
@@ -86,98 +73,78 @@ const Dropdown = ({
       const handler: EventListener = (event) => {
         if (
           closeOnClickOutside &&
-          // @ts-ignore: Unreachable code error
-          !referenceElement.contains(event.target) &&
-          // @ts-ignore: Unreachable code error
-          !popperElement.contains(event.target)
+          referenceEl &&
+          floatingEl &&
+          !referenceEl.contains(event.target as Node) &&
+          !floatingEl.contains(event.target as Node)
         ) {
           setVisible(false);
         }
       };
       document.addEventListener("mousedown", handler);
-      return () => {
-        document.removeEventListener("mousedown", handler);
-      };
+      return () => document.removeEventListener("mousedown", handler);
     }
-  }, [visible, referenceElement, popperElement]);
+  }, [visible, referenceEl, floatingEl]);
 
   React.useEffect(() => {
     if (visible && trigger === "hover") {
       const handler: EventListener = (event) => {
         if (
-          // @ts-ignore: Unreachable code error
-          !referenceElement.contains(event.target) &&
-          // @ts-ignore: Unreachable code error
-          !popperElement.contains(event.target)
+          referenceEl &&
+          floatingEl &&
+          !referenceEl.contains(event.target as Node) &&
+          !floatingEl.contains(event.target as Node)
         ) {
           setVisible(false);
         }
       };
       document.addEventListener("mouseleave", handler);
-      return () => {
-        document.removeEventListener("mouseleave", handler);
-      };
+      return () => document.removeEventListener("mouseleave", handler);
     }
-  }, [visible, referenceElement, popperElement]);
+  }, [visible, referenceEl, floatingEl]);
+
+  const minWidth = referenceEl ? `${referenceEl.offsetWidth}px` : undefined;
 
   return (
     <>
       {typeof target === "function"
         ? target({
-            ref: setReferenceElement,
+            ref: refs.setReference,
             open: () => setVisible(true),
             close: () => setVisible(false),
             visible,
             className: cn("DropdownTarget", {
-              ["DropdownTarget_visible"]: visible,
+              DropdownTarget_visible: visible,
             }),
           })
         : React.cloneElement(target, {
-            ref: setReferenceElement,
+            ref: refs.setReference,
             onClick: handleMouseDown,
             onMouseEnter: handleMouseEnter,
             onMouseMove: handleMouseEnter,
             onMouseLeave: handleMouseLeave,
             active: visible,
             className: cn("DropdownTarget", target.props.className, {
-              ["DropdownTarget_visible"]: visible,
+              DropdownTarget_visible: visible,
             }),
           })}
       {visible &&
         ReactDOM.createPortal(
           <div
-            ref={setPopperElement}
-            style={{
-              ...styles.popper,
-              // @ts-ignore: Unreachable code error
-              minWidth: `${instance?.state?.elements?.reference?.offsetWidth}px`,
-            }}
-            className={cn("Dropdown", {
-              ["Dropdown_visible"]: visible,
-            })}
+            ref={refs.setFloating}
+            style={{ ...floatingStyles, minWidth }}
+            className={cn("Dropdown", { Dropdown_visible: visible })}
             onClick={handleClickOnContent}
             onMouseEnter={handleMouseEnter}
             onMouseMove={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            {...attributes.popper}
           >
             {content}
           </div>,
-          document.querySelector("body")!
+          document.body
         )}
     </>
   );
-};
-
-Dropdown.propTypes = {
-  placement: PropTypes.string,
-  closeOnClickContent: PropTypes.bool,
-  closeOnClickOutside: PropTypes.bool,
-};
-
-Dropdown.defaultProps = {
-  placement: "bottom-start",
-  trigger: "click",
 };
 
 export default Dropdown;

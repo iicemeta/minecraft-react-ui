@@ -1,8 +1,7 @@
-import React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
-import Checkbox from "@/components/inputs/Checkbox";
+import * as React from "react";
+import { cn } from "@/utils/cn";
 import "./CheckboxGroup.css";
+import Checkbox from "@/components/inputs/Checkbox";
 
 export type CheckboxGroupOption = {
   label: string;
@@ -24,12 +23,12 @@ export type CheckboxGroupProps = Omit<React.HTMLProps<HTMLDivElement>, "onChange
 };
 
 const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>(
-  ({ name, value, onChange, options, disabled, readOnly, className, showSelectAll, direction }, ref?) => {
+  ({ name, value, onChange, options, disabled, readOnly, className, showSelectAll, direction = "column" }, ref) => {
     const optionId = (option: CheckboxGroupOption) => `${name}-${option.value}`;
     const handleChange = (
       option: CheckboxGroupOption,
       checked: boolean,
-      event: React.ChangeEvent<HTMLInputElement>,
+      event: React.ChangeEvent<HTMLInputElement>
     ) => {
       onChange(
         [...(value?.filter((optionValue) => optionValue !== option.value) || []), ...(checked ? [option.value] : [])],
@@ -94,15 +93,6 @@ const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>(
   },
 );
 
-CheckboxGroup.propTypes = {
-  name: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  showSelectAll: PropTypes.bool,
-  direction: PropTypes.oneOf(["column", "row"]),
-};
-
-CheckboxGroup.defaultProps = {
-  direction: "column",
-};
+CheckboxGroup.displayName = "CheckboxGroup";
 
 export default CheckboxGroup;

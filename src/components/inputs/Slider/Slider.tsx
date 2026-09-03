@@ -1,69 +1,69 @@
 import * as React from "react";
-import PropTypes from "prop-types";
-import cn from "classnames";
-import { useEventListener } from "usehooks-ts";
+import { cn } from "@/utils/cn";
 import Button from "@/components/buttons/Button";
 import "./Slider.css";
 
 export type SliderProps = {
-  children: React.ReactNode;
-  onClick: () => void;
+  children?: React.ReactNode;
+  onClick?: () => void;
   disabled?: boolean;
   className?: string;
   type?: "button" | "submit" | "reset";
-  variant?: "primary" | "secondary" | "tertiary";
+  variant?: "primary" | "secondary";
   value: number;
   min: number;
   max: number;
-  step: number;
+  step?: number;
   onChange: (value: number) => void;
 };
 
-const Slider = ({ disabled, className, value = 50, onChange, min = 0, max = 100 }: SliderProps) => {
+const Slider = ({
+  disabled,
+  className,
+  value = 50,
+  onChange,
+  min = 0,
+  max = 100,
+}: SliderProps) => {
   const [isFocus, setFocus] = React.useState<boolean>(false);
   const [isDragging, setIsDragging] = React.useState<boolean>(false);
   const sliderRef = React.useRef<HTMLDivElement>(null);
 
-  const handleFocus = (event: React.FocusEvent<HTMLButtonElement>) => {
-    setFocus(true);
-  };
-
-  const handleBlur = (event: React.FocusEvent<HTMLButtonElement>) => {
-    setFocus(false);
-  };
+  const handleFocus = () => setFocus(true);
+  const handleBlur = () => setFocus(false);
 
   const handleMouseDown: React.MouseEventHandler<HTMLDivElement> = (event) => {
     event.preventDefault();
     setIsDragging(true);
   };
 
-  const handleMouseUp = (event: MouseEvent) => {
-    if (isDragging) {
-      event.preventDefault();
-      setIsDragging(false);
-    }
-  };
+  const handleMouseUp = React.useCallback(
+    (event: MouseEvent) => {
+      if (isDragging) {
+        event.preventDefault();
+        setIsDragging(false);
+      }
+    },
+    [isDragging]
+  );
 
-  const relativeValue = ((value - min) / (max - min)) * 100;
+  const handleMouseMove = React.useCallback(
+    (event: MouseEvent) => {
+      if (isDragging && sliderRef.current) {
+        const { clientX } = event;
+        const { left, width } = sliderRef.current.getBoundingClientRect();
+        const relativeX = (clientX - left) / width;
+        const newValue = Math.round(relativeX * (max - min)) + min;
+        onChange(Math.min(max, Math.max(min, newValue)));
+      }
+    },
+    [isDragging, min, max, onChange]
+  );
 
-  const handleMouseMove = (event: MouseEvent) => {
-    if (isDragging) {
-      const { clientX } = event;
-      const { left, width } = sliderRef.current?.getBoundingClientRect() || {
-        left: 0,
-        width: 0,
-      };
-      const relativeX = (clientX - left) / width;
-      const newValue = Math.round(relativeX * (max - min)) + min;
-      onChange(Math.min(max, Math.max(min, newValue)));
-    }
-  };
   const handleClick = (event: React.MouseEvent) => {
+    if (!sliderRef.current) return;
     const { clientX } = event;
-    const { left, width } = sliderRef.current?.getBoundingClientRect() || {
-      left: 0,
-      width: 0,
-    };
+    const { left, width } = sliderRef.current.getBoundingClientRect();
     const relativeX = (clientX - left) / width;
     const newValue = Math.round(relativeX * (max - min)) + min;
     onChange(Math.min(max, Math.max(min, newValue)));
@@ -77,35 +77,42 @@ const Slider = ({ disabled, className, value = 50, onChange, min = 0, max = 100 
     }
   };
 
-  const backgroundRailStyles = (() => ({
-    backgroundImage: `
-    linear-gradient(to right, ${value === min ? "transparent" : "var(--slider-rail-fill-color)"}, ${Array.from(
-      new Array(max - min - 1),
-    )
-      .map(
-        (_, index) =>
-          `${index + 1 <= value - min ? "var(--slider-rail-fill-color)" : "transparent"} calc(${
-            (100 / (max - min)) * (index + 1)
-          }% - 2px), ` +
-          `black calc(${(100 / (max - min)) * (index + 1)}% - 2px), ` +
-          `black calc(${(100 / (max - min)) * (index + 1)}% + 2px), ` +
-          `${index + 2 <= value - min ? "var(--slider-rail-fill-color)" : "transparent"} calc(${
-            (100 / (max - min)) * (index + 1)
-          }% + 2px)`,
-      )
-      .join(", ")}, ${value === max ? "var(--slider-rail-fill-color)" : "transparent"})
-`,
-  }))();
+  React.useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [handleMouseMove, handleMouseUp]);
 
-  useEventListener("mousemove", handleMouseMove);
-  useEventListener("mouseup", handleMouseUp);
+  const relativeValue = ((value - min) / (max - min)) * 100;
+
+  const backgroundRailStyles = React.useMemo(() => ({
+    backgroundImage: `
+      linear-gradient(to right, ${value === min ? "transparent" : "var(--slider-rail-fill-color)"},
+      ${Array.from(new Array(max - min - 1))
+        .map(
+          (_, index) =>
+            `${index + 1 <= value - min ? "var(--slider-rail-fill-color)" : "transparent"} calc(${
+              (100 / (max - min)) * (index + 1)
+            }% - 2px), ` +
+            `black calc(${(100 / (max - min)) * (index + 1)}% - 2px), ` +
+            `black calc(${(100 / (max - min)) * (index + 1)}% + 2px), ` +
+            `${index + 2 <= value - min ? "var(--slider-rail-fill-color)" : "transparent"} calc(${
+              (100 / (max - min)) * (index + 1)
+            }% + 2px)`,
+        )
+        .join(", ")}, ${value === max ? "var(--slider-rail-fill-color)" : "transparent"})
+    `,
+  }), [value, min, max]);
 
   return (
     <div
       className={cn("Slider", className, {
-        ["Slider_disabled"]: disabled,
-        ["Slider_dragging"]: isDragging,
-        ["Slider_focus"]: isFocus,
+        Slider_disabled: disabled,
+        Slider_dragging: isDragging,
+        Slider_focus: isFocus,
       })}
       onClick={handleClick}
       onMouseDown={handleMouseDown}
@@ -118,7 +125,7 @@ const Slider = ({ disabled, className, value = 50, onChange, min = 0, max = 100 
         <Button
           variant={"secondary"}
           disabled={disabled}
-          style={{ left: `calc(${relativeValue}% ` }}
+          style={{ left: `calc(${relativeValue}% )` }}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -130,22 +137,6 @@ const Slider = ({ disabled, className, value = 50, onChange, min = 0, max = 100 
       </div>
     </div>
   );
-};
-
-Slider.propTypes = {
-  children: PropTypes.node.isRequired,
-  onClick: PropTypes.func.isRequired,
-  disabled: PropTypes.bool,
-  className: PropTypes.string,
-  type: PropTypes.oneOf(["button", "submit", "reset"]),
-  variant: PropTypes.oneOf(["primary", "secondary", "tertiary"]),
-};
-
-Slider.defaultProps = {
-  variant: "secondary",
-  onChange: () => {
-    // Do nothing
-  },
 };
 
 Slider.displayName = "Slider";
