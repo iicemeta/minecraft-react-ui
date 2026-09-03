@@ -20,6 +20,11 @@ A React + TypeScript components library, rebuilt on **React 19**.
 npm install
 ```
 
+## Usage Guide
+
+See [USAGE.md](./USAGE.md) for a full tutorial with code examples for every
+component (Button, Input, Checkbox, Select, Slider, Tooltip, List, etc.).
+
 ## Components Preview (gallery)
 
 Instead of Storybook, this repo ships a lightweight, interactive gallery page that
