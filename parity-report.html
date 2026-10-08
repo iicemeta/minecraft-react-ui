@@ -190,6 +190,7 @@ npm error code E401</div>
     <tr><td>tag / version 闸门</td><td><span class="pill ok">行为正确</span></td><td>拿真实 <code>package.json</code> 本地执行：<code>v1.0.1</code> → exit 0；<code>v1.0.0</code> → exit 1；<code>v2.0.0</code> → exit 1</td></tr>
     <tr><td>发布模式开关</td><td><span class="pill ok">行为正确</span></td><td>未设置 → <code>npm publish</code>；<code>stage</code> → <code>npm stage publish</code></td></tr>
     <tr><td>认证方式</td><td><span class="pill ok">OIDC</span></td><td>可信发布，无 <code>NPM_TOKEN</code> secret；全文件断言不含 <code>NODE_AUTH_TOKEN</code>（否则会注入空 token 顶掉 OIDC）</td></tr>
+    <tr><td>1.0.2 · 浮层层级修复</td><td><span class="pill ok">已复现 + 已修</span></td><td>在已发布的 1.0.1 样式表下，<code>z-index: 40</code> 的应用栏会盖住 <code>Dropdown</code> 面板并吃掉它的点击。<code>.Dropdown_visible</code> / <code>.Tooltip_visible</code> 现声明 <code>z-index: var(--floating-z-index, 1000)</code>。用无头 Chromium 渲染同一静态 DOM 的 before/after 对比图确认（库样式表是唯一变量）。纯 CSS 改动：<code>index.js</code> / <code>.cjs</code> / <code>.d.ts</code> 与新构建产物 sha256 完全一致</td></tr>
     <tr><td>推送 tag</td><td><span class="pill warn">未执行</span></td><td>刻意留给维护者本人触发</td></tr>
   </tbody>
 </table>
