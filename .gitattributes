@@ -1,0 +1,7 @@
+# Keep the repository LF-only.
+#
+# GitHub Actions executes the `run:` blocks of workflow YAML with bash on the
+# runner. A stray carriage return becomes part of the command and fails with
+# "$'\r': command not found". This machine has core.autocrlf=true, so pin LF
+# explicitly rather than relying on normalisation at commit time.
+* text=auto eol=lf
