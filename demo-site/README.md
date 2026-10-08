@@ -128,6 +128,33 @@ Two more things the build command gives you for free:
 - `public/_headers` and `public/_redirects` are Pages-native conventions and Vite
   copies `public/` into `dist/`, so both reach the edge without extra configuration.
 
+### Verifying the deployment
+
+A green build is **not** proof that the site was built. The library's own
+`npm run build` also succeeds and also writes to `dist/`, so a project with the
+root directory left unset deploys the library bundle and then 404s on every route —
+the build log says "success" either way.
+
+Two checks settle it:
+
+```bash
+curl -sI https://<project>.pages.dev/index.html -o /dev/null -w '%{http_code}\n'  # 200
+curl -sI https://<project>.pages.dev/index.js   -o /dev/null -w '%{http_code}\n'  # 404
+```
+
+`index.html` answering 200 is the real pass condition; `index.js` answering 200
+means the library was deployed instead of the site. The build log tells you which
+one ran before you even open the site:
+
+| what was built | fingerprint in the log |
+| --- | --- |
+| the site | `dist/index.html`, `dist/assets/index-*.js`, ~63 modules, ~6 s |
+| the library | `[vite:dts] Declaration files built`, `dist/index.cjs`, `dist/minecraft-react-ui.css`, ~50 s |
+
+Changing any build setting only affects **new** deployments: after editing the root
+directory, redeploy — Deployments → ⋯ → **Retry deployment** re-runs the current
+commit against the updated settings, or push any commit.
+
 Node 22 is already the default of Pages' v3 build image (Node 22.16.0, npm 10.9.2)
 and `.nvmrc` pins it as well, so **no environment variable is needed**. If a build
 ever reports an unexpected Node version, set `NODE_VERSION` under **Settings →
