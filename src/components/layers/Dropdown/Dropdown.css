@@ -9,4 +9,7 @@
 
 .Dropdown_visible {
   display: initial;
+  /* The panel lives in a portal under document.body, so it needs its own
+     stacking order — see --floating-z-index. */
+  z-index: var(--floating-z-index, 1000);
 }

@@ -12,6 +12,8 @@
 
 .Tooltip_visible {
   display: initial;
+  /* Same portal, same reason as .Dropdown_visible — see --floating-z-index. */
+  z-index: var(--floating-z-index, 1000);
 }
 
 .TooltipWrapper {

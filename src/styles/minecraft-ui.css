@@ -50,4 +50,12 @@ a {
   --bezel-color: rgba(0, 0, 0, 0.4);
   --bezel-color-semi: rgba(128, 128, 128, 0.4);
   --bezel-color-invert: rgba(255, 255, 255, 0.4);
+
+  /* Stacking order for the two layers that portal into document.body
+     (Dropdown and Tooltip). A portalled element is a sibling of the app root,
+     so with no z-index of its own it is painted underneath any app chrome that
+     has one — a sticky header, a drawer — and clicks land on that chrome
+     instead of on the panel. Raise this token if the app's own chrome sits in a
+     higher band (Bootstrap puts its navbar at 1030, for instance). */
+  --floating-z-index: 1000;
 }

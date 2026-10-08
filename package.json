@@ -1,7 +1,7 @@
 {
   "name": "@iicemeta/minecraft-react-ui",
   "description": "Minecraft-style React UI components library — modernized fork on React 19 (Vite + Floating UI + dnd-kit + TanStack Virtual)",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

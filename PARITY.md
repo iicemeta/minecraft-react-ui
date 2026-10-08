@@ -52,6 +52,26 @@ All differences are mechanical modernization, not dropped functionality:
 | Storybook 6 + `*.stories.tsx` | Vite gallery at `demo/` |
 | inline `["Class_x"]: cond` computed keys | plain object shorthand |
 
+### The one deliberate divergence: `--floating-z-index`
+
+Everything above is mechanical. One change is behavioural — the two layers that
+portal into `document.body` now declare a stacking order:
+
+| upstream | fork |
+|---|---|
+| `.Dropdown_visible { display: initial }` | `.Dropdown_visible { display: initial; z-index: var(--floating-z-index, 1000) }` |
+| `.Tooltip_visible { display: initial }` | same |
+
+A portalled element is a sibling of the app root, so with no `z-index` of its own
+it is painted underneath any app chrome that has one, and the panel's clicks land
+on that chrome instead. Upstream behaves the same way — `grep -rn z-index` over
+its entire stylesheet returns three hits, all inside Checkbox/Radio/Switch — so
+this is a latent upstream defect rather than a fork regression. Reproduced in
+headless Chromium against the published 1.0.1 stylesheet and fixed in 1.0.2.
+
+Deliberately **not** diverged: `.Dropdown` still ships no panel chrome of its
+own. That is a contract, not a bug — see USAGE.md.
+
 ## 3. Gaps found and fixed in this pass
 
 Functional, small — recorded for honesty, not swept under the rug:

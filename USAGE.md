@@ -68,6 +68,16 @@ customise the palette:
 }
 ```
 
+`--floating-z-index` (default `1000`) is the stacking order for the two layers
+that portal into `document.body`, `Dropdown` and `Tooltip`. Raise it if your own
+chrome sits in a higher band and the panels are disappearing behind it:
+
+```css
+:root {
+  --floating-z-index: 2000;
+}
+```
+
 ---
 
 ## Components
@@ -438,6 +448,15 @@ Floating UI positioning.
 | `closeOnClickOutside` | `boolean` | `false` | Close on outside click |
 | `closeOnClickContent` | `boolean` | `false` | Close when content is clicked |
 
+`Dropdown` is a positioning primitive: it portals `content` into
+`document.body` and adds no chrome of its own — no background, border, padding or
+shadow. **Style whatever you pass as `content`**, or it will be painted
+transparently over the page beneath it. (`DropdownMenu` and `Select` are built on
+`Dropdown` and pass a `Menu`, which does carry its own background.)
+
+The panel's stacking order comes from `--floating-z-index`; see
+[Theming via CSS Variables](#theming-via-css-variables).
+
 **Render-function target** — receive `open`, `close`, `visible`, `ref`:
 
 ```tsx
@@ -452,7 +471,7 @@ import { Dropdown } from "@iicemeta/minecraft-react-ui";
       Open menu
     </button>
   )}
-  content={<div>Dropdown content here</div>}
+  content={<div className="my-panel">Dropdown content here</div>}
 />
 ```
 
