@@ -88,10 +88,12 @@ there:
   anything you hand to `Dropdown` as `content` has to supply its own surface, or
   it gets painted transparently over whatever it floats above. `.dropdown-panel`
   in `src/styles/site.css` is where this site does that.
-- **The library sets no `z-index`**, so an open panel loses to the site's own
-  chrome — the sticky topbar (40) and the mobile drawer (35). `site.css` lifts
-  `.Dropdown` and `.Tooltip` to 60 for that reason. `DropdownMenu` and `Select`
-  both build on `Dropdown`, so they inherit it.
+- **The library sets no `z-index` on the panel before 1.0.2**, so an open panel
+  loses to the site's own chrome — the sticky topbar (40) and the mobile drawer
+  (35), which paint over the panel and take its clicks. 1.0.2 introduced the
+  `--floating-z-index` token (default 1000); the site pins its own band by
+  setting the token *and* declaring the property, so it behaves the same on both
+  versions. `DropdownMenu` and `Select` both build on `Dropdown` and inherit it.
 
 ## Deploying to Cloudflare Pages
 
