@@ -9,7 +9,7 @@ export type SliderProps = {
   disabled?: boolean;
   className?: string;
   type?: "button" | "submit" | "reset";
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "tertiary";
   value: number;
   min: number;
   max: number;

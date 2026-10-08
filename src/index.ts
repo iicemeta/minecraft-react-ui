@@ -29,6 +29,9 @@ export { default as Tooltip } from "./components/layers/Tooltip";
 // Others
 export { default as Tag } from "./components/Tag";
 
+// Utils
+export { cn } from "./utils/cn";
+
 // Types
 export type { ButtonProps } from "./components/buttons/Button";
 export type { ButtonGroupProps } from "./components/buttons/ButtonGroup";
@@ -54,5 +57,11 @@ export type { RadioGroupProps, RadioGroupOption } from "./components/inputs/Radi
 export type { SelectProps, SelectOption } from "./components/inputs/Select";
 export type { SliderProps } from "./components/inputs/Slider";
 export type { SwitchProps } from "./components/inputs/Switch";
-export type { DropdownProps, DropdownTargetProps } from "./components/layers/Dropdown";
+export type {
+  DropdownProps,
+  DropdownTargetProps,
+  Target,
+  TargetFunction,
+} from "./components/layers/Dropdown";
+export type { TooltipProps } from "./components/layers/Tooltip";
 export type { TagProps } from "./components/Tag";

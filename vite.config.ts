@@ -25,6 +25,7 @@ const libConfig: UserConfig = {
       name: "MinecraftReactUI",
       formats: ["es", "cjs"],
       fileName: (format) => (format === "es" ? "index.js" : "index.cjs"),
+      cssFileName: "minecraft-react-ui",
     },
     rollupOptions: {
       external: [

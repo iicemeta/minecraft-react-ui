@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-npm install minecraft-react-ui
+npm install @iicemeta/minecraft-react-ui
 ```
 
 Peer dependencies: `react` and `react-dom` (18 or 19).
@@ -15,7 +15,7 @@ Peer dependencies: `react` and `react-dom` (18 or 19).
 In your app's entry file (e.g. `main.tsx` or `App.tsx`):
 
 ```tsx
-import "minecraft-react-ui/style.css";
+import "@iicemeta/minecraft-react-ui/style.css";
 ```
 
 This loads all component styles + the Minecraft CSS variables (colors, fonts, etc.).
@@ -23,7 +23,7 @@ This loads all component styles + the Minecraft CSS variables (colors, fonts, et
 ### 2. Use components
 
 ```tsx
-import { Button, Tag } from "minecraft-react-ui";
+import { Button, Tag } from "@iicemeta/minecraft-react-ui";
 
 function App() {
   return (
@@ -85,7 +85,7 @@ A styled `<button>` with Minecraft bezel shadow.
 | `type` | `"button" \| "submit" \| "reset"` | — | Button HTML type |
 
 ```tsx
-import { Button } from "minecraft-react-ui";
+import { Button } from "@iicemeta/minecraft-react-ui";
 
 <Button variant="primary" onClick={() => alert("clicked!")}>
   Primary Action
@@ -111,7 +111,7 @@ A controlled segmented toggle. Selects one option from a list.
 | `disabled` | `boolean` | `false` | Disable all buttons |
 
 ```tsx
-import { ButtonGroup } from "minecraft-react-ui";
+import { ButtonGroup } from "@iicemeta/minecraft-react-ui";
 import { useState } from "react";
 
 function ViewToggle() {
@@ -146,7 +146,7 @@ directly instead of the raw event.
 | `placeholder` | `string` | — | Placeholder text |
 
 ```tsx
-import { Input } from "minecraft-react-ui";
+import { Input } from "@iicemeta/minecraft-react-ui";
 import { useState } from "react";
 
 function SearchBox() {
@@ -180,7 +180,7 @@ raw event.
 | `disabled` | `boolean` | — | Disabled |
 
 ```tsx
-import { Checkbox, Tag } from "minecraft-react-ui";
+import { Checkbox, Tag } from "@iicemeta/minecraft-react-ui";
 import { useState } from "react";
 
 function Consent() {
@@ -209,7 +209,7 @@ A styled radio button. Same `onChange` pattern as Checkbox.
 | `disabled` | `boolean` | — | Disabled |
 
 ```tsx
-import { Radio } from "minecraft-react-ui";
+import { Radio } from "@iicemeta/minecraft-react-ui";
 
 <Radio value="a" checked={selected === "a"} onChange={setSelected} />
 <Radio value="b" checked={selected === "b"} onChange={setSelected} />
@@ -228,7 +228,7 @@ A toggle switch (rendered as a styled checkbox). Same API as Checkbox.
 | `disabled` | `boolean` | — | Disabled |
 
 ```tsx
-import { Switch, Tag } from "minecraft-react-ui";
+import { Switch, Tag } from "@iicemeta/minecraft-react-ui";
 import { useState } from "react";
 
 function Toggle() {
@@ -260,7 +260,7 @@ A group of checkboxes with multi-select.
 | `disabled` | `boolean` | — | Disable all |
 
 ```tsx
-import { CheckboxGroup } from "minecraft-react-ui";
+import { CheckboxGroup } from "@iicemeta/minecraft-react-ui";
 import { useState } from "react";
 
 function Permissions() {
@@ -298,7 +298,7 @@ A group of radio buttons with single-select.
 | `disabled` | `boolean` | — | Disable all |
 
 ```tsx
-import { RadioGroup } from "minecraft-react-ui";
+import { RadioGroup } from "@iicemeta/minecraft-react-ui";
 import { useState } from "react";
 
 function Difficulty() {
@@ -335,7 +335,7 @@ A draggable value slider with Minecraft pixel-art rail styling.
 | `disabled` | `boolean` | — | Disabled |
 
 ```tsx
-import { Slider, Tag } from "minecraft-react-ui";
+import { Slider, Tag } from "@iicemeta/minecraft-react-ui";
 import { useState } from "react";
 
 function VolumeControl() {
@@ -367,7 +367,7 @@ Menu internally.
 | `disabled` | `boolean` | — | Disabled |
 
 ```tsx
-import { Select } from "minecraft-react-ui";
+import { Select } from "@iicemeta/minecraft-react-ui";
 import { useState } from "react";
 
 function BlockPicker() {
@@ -407,7 +407,7 @@ Renders a floating tooltip on hover or click.
 | `trigger` | `"hover" \| "click"` | `"hover"` | How to activate |
 
 ```tsx
-import { Tooltip, Button } from "minecraft-react-ui";
+import { Tooltip, Button } from "@iicemeta/minecraft-react-ui";
 
 <Tooltip content="This is a helpful tip!" placement="top">
   <Button variant="secondary">Hover me</Button>
@@ -441,7 +441,7 @@ Floating UI positioning.
 **Render-function target** — receive `open`, `close`, `visible`, `ref`:
 
 ```tsx
-import { Dropdown } from "minecraft-react-ui";
+import { Dropdown } from "@iicemeta/minecraft-react-ui";
 
 <Dropdown
   placement="bottom-end"
@@ -470,7 +470,7 @@ Convenience component combining Dropdown + Menu.
 | `className` | `string` | — | Extra class on the menu button |
 
 ```tsx
-import { DropdownMenu } from "minecraft-react-ui";
+import { DropdownMenu } from "@iicemeta/minecraft-react-ui";
 
 <DropdownMenu
   placement="bottom-end"
@@ -494,7 +494,7 @@ import { DropdownMenu } from "minecraft-react-ui";
 A standalone vertical menu (used inside Dropdown, but can be used directly).
 
 ```tsx
-import { Menu, MenuIcon } from "minecraft-react-ui";
+import { Menu, MenuIcon } from "@iicemeta/minecraft-react-ui";
 
 <div style={{ display: "flex", gap: 8 }}>
   <MenuIcon />
@@ -523,7 +523,7 @@ An inline label/badge with pixel-art clip-path styling.
 | `className` | `string` | Extra CSS class |
 
 ```tsx
-import { Tag } from "minecraft-react-ui";
+import { Tag } from "@iicemeta/minecraft-react-ui";
 
 <Tag>v2.1.0</Tag>
 <Tag className="Tag_success">Online</Tag>
@@ -546,7 +546,7 @@ and `align-items`.
 | `children` | `ReactNode` | — | Child content |
 
 ```tsx
-import { FlexBox, Tag } from "minecraft-react-ui";
+import { FlexBox, Tag } from "@iicemeta/minecraft-react-ui";
 
 <FlexBox justify="space-between" align="center">
   <Tag>Left</Tag>
@@ -583,7 +583,7 @@ menus. Uses `@tanstack/react-virtual` + `@dnd-kit` internally.
 **Basic list:**
 
 ```tsx
-import { List, type Item } from "minecraft-react-ui";
+import { List, type Item } from "@iicemeta/minecraft-react-ui";
 
 const items: Item[] = Array.from({ length: 100 }, (_, i) => ({
   id: `item-${i}`,
@@ -703,8 +703,8 @@ import {
   Tooltip,
   DropdownMenu,
   FlexBox,
-} from "minecraft-react-ui";
-import "minecraft-react-ui/style.css";
+} from "@iicemeta/minecraft-react-ui";
+import "@iicemeta/minecraft-react-ui/style.css";
 
 export default function App() {
   const [view, setView] = useState("grid");

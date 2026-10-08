@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Parity Audit — upstream-minecraft-react-ui → @iicemeta/minecraft-react-ui</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#12161c; --muted:#5b6472;
+    --line:#e3e6ea; --line-strong:#cbd2da;
+    --ok:#1f8a4c; --ok-bg:#eaf7ef;
+    --warn:#b06a00; --warn-bg:#fdf3e3;
+    --info:#1f5fbf; --info-bg:#ecf2fd;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 24px 72px}
+  header{border-bottom:1px solid var(--line-strong);padding-bottom:20px;margin-bottom:32px}
+  h1{font-size:24px;margin:0 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13.5px}
+  .sub code{font-family:var(--mono);font-size:12.5px;background:#eceff3;padding:1px 5px;border-radius:4px}
+  h2{font-size:16px;margin:36px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0 8px}
+  .metric{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .metric .n{font-size:26px;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .metric .l{font-size:12px;color:var(--muted);margin-top:2px}
+  .metric.good .n{color:var(--ok)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;overflow:hidden;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f0f2f5;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  tr:last-child td{border-bottom:0}
+  code{font-family:var(--mono);font-size:12.5px}
+  .pill{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .pill.ok{background:var(--ok-bg);color:var(--ok)}
+  .pill.warn{background:var(--warn-bg);color:var(--warn)}
+  .pill.info{background:var(--info-bg);color:var(--info)}
+  .verdict{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--ok);
+    border-radius:8px;padding:16px 18px;margin:16px 0}
+  .verdict strong{color:var(--ok)}
+  ul{padding-left:20px;margin:8px 0}
+  li{margin:5px 0}
+  .note{color:var(--muted);font-size:13px;margin-top:10px}
+  .bar{height:6px;border-radius:3px;background:#eceff3;overflow:hidden;margin-top:8px}
+  .bar>i{display:block;height:100%;background:var(--ok)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Parity Audit</h1>
+  <div class="sub">
+    <code>upstream-minecraft-react-ui</code> → <code>@iicemeta/minecraft-react-ui</code><br />
+    Audit date 2026-10-08 · upstream baseline <code>fd29a10</code> (v0.7.0) · fork baseline <code>144b95d</code><br />
+    方法：文件集机械比对 + 字节比对 + 逐文件 <code>diff -u</code>。非目测，非抽样。<br />
+    覆盖范围：组件对齐审计 → 发布包化 → 发布流水线（<code>v*</code> tag 触发）。
+  </div>
+</header>
+
+<div class="verdict">
+  <strong>结论：组件零遗漏。</strong>
+  16 / 16 组件族、20 / 20 实现文件、21 / 21 CSS 全部存在。
+  fork 是完整移植，且导出面是 upstream 的严格超集（upstream <code>index.ts</code> 只导出 1 个 Button，fork 导出 19 个组件 + 23 个类型）。
+</div>
+
+<div class="metrics">
+  <div class="metric good"><div class="n">16/16</div><div class="l">组件族</div></div>
+  <div class="metric good"><div class="n">20/20</div><div class="l">实现文件</div></div>
+  <div class="metric good"><div class="n">21/21</div><div class="l">CSS 文件</div></div>
+  <div class="metric good"><div class="n">20/21</div><div class="l">CSS 逐字节一致</div></div>
+  <div class="metric"><div class="n">1</div><div class="l">CSS 有差异（List.css）</div></div>
+  <div class="metric good"><div class="n">0</div><div class="l">缺失组件</div></div>
+</div>
+
+<h2>1 · 组件清单（逐族核对）</h2>
+<table>
+  <thead><tr><th style="width:34%">组件族</th><th style="width:12%">upstream</th><th style="width:12%">fork</th><th>状态</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tag</code></td><td>3 文件</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>buttons/Button</code></td><td>5</td><td>4 <span class="note">(去 stories)</span></td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>buttons/ButtonGroup</code></td><td>4</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>content/DropdownMenu</code></td><td>3</td><td>2</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>content/List</code> <span class="note">List / ListContext / ListItem / ListOptions / types</span></td><td>11</td><td>10</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>content/Menu</code> <span class="note">Menu / MenuIcon / MenuItem</span></td><td>7</td><td>6</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>css/FlexBox</code></td><td>3</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>inputs/Checkbox</code></td><td>4</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>inputs/CheckboxGroup</code></td><td>4</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>inputs/Input</code></td><td>4</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>inputs/Radio</code></td><td>4</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>inputs/RadioGroup</code></td><td>4</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>inputs/Select</code></td><td>4</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>inputs/Slider</code></td><td>4</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>inputs/Switch</code></td><td>4</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>layers/Dropdown</code></td><td>4</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+    <tr><td><code>layers/Tooltip</code></td><td>4</td><td>3</td><td><span class="pill ok">已移植</span></td></tr>
+  </tbody>
+</table>
+<div class="note">差值全部是 <code>*.stories.tsx</code>（Storybook 文档文件），被 <code>demo/</code> 画廊取代 —— 不是库代码。</div>
+
+<h2>2 · 差异性质（全部为现代化替换，无功能删减）</h2>
+<table>
+  <thead><tr><th style="width:38%">upstream 写法</th><th>fork 写法</th></tr></thead>
+  <tbody>
+    <tr><td><code>propTypes</code> / <code>defaultProps</code> 运行时校验</td><td>删除 → 纯 TS 类型（React 19 已移除函数组件 <code>defaultProps</code>）</td></tr>
+    <tr><td><code>classnames</code></td><td><code>clsx</code>，经 <code>src/utils/cn.ts</code></td></tr>
+    <tr><td><code>react-popper</code> + <code>@popperjs/core</code></td><td><code>@floating-ui/react-dom</code>（Dropdown / Tooltip）</td></tr>
+    <tr><td><code>react-beautiful-dnd</code></td><td><code>@dnd-kit/core</code> + <code>sortable</code> + <code>utilities</code>（List 拖拽）</td></tr>
+    <tr><td><code>react-window</code> + <code>react-virtualized-auto-sizer</code></td><td><code>@tanstack/react-virtual</code>（List 虚拟滚动）</td></tr>
+    <tr><td><code>usehooks-ts</code>（<code>useEventListener</code>）</td><td>原生 <code>useEffect</code> 监听</td></tr>
+    <tr><td>Rollup + postcss</td><td>Vite 6 library mode + <code>vite-plugin-dts</code></td></tr>
+    <tr><td>Storybook 6 + <code>*.stories.tsx</code></td><td>Vite 画廊 <code>demo/</code></td></tr>
+  </tbody>
+</table>
+
+<h2>3 · 本轮补全（发现的真实缺口）</h2>
+<table>
+  <thead><tr><th style="width:52%">缺口</th><th>处理</th></tr></thead>
+  <tbody>
+    <tr><td><code>Slider</code> 的 <code>variant</code> 联合类型丢了 <code>"tertiary"</code></td><td><span class="pill ok">已恢复</span> 保持类型面为 upstream 超集</td></tr>
+    <tr><td><code>TooltipProps</code> 未从模块和 <code>index.ts</code> 导出</td><td><span class="pill ok">已导出</span></td></tr>
+    <tr><td><code>Target</code> / <code>TargetFunction</code> 类型未从 <code>index.ts</code> 导出</td><td><span class="pill ok">已导出</span></td></tr>
+    <tr><td><code>cn</code> 工具仅内部可用</td><td><span class="pill ok">已导出</span> 供自定义组件复用</td></tr>
+  </tbody>
+</table>
+
+<h2>4 · 发布链路缺口（fork 重构时被删掉）</h2>
+<table>
+  <thead><tr><th style="width:26%">项</th><th style="width:24%">upstream</th><th style="width:22%">fork 改造后</th><th>本轮</th></tr></thead>
+  <tbody>
+    <tr><td><code>LICENSE</code></td><td>缺失</td><td>缺失</td><td><span class="pill ok">已补</span> MIT 双版权</td></tr>
+    <tr><td><code>.npmrc</code>（token）</td><td>有</td><td>无</td><td><span class="pill warn">故意不加</span> 原因见下方</td></tr>
+    <tr><td><code>.github/workflows/release.yml</code></td><td><code>npm-publish.yml</code>（node 16 · <code>NPM_TOKEN</code> · push-to-main）</td><td>无</td><td><span class="pill ok">已补</span> tag 触发 + OIDC 可信发布 + 建 Release</td></tr>
+    <tr><td><code>publishConfig</code></td><td>仅 registry</td><td>无</td><td><span class="pill ok">已补</span> <code>access: public</code></td></tr>
+    <tr><td><code>repository</code> / <code>homepage</code> / <code>bugs</code></td><td>指向原作者</td><td>仍指向原作者</td><td><span class="pill ok">已改</span> 指向 iicemeta</td></tr>
+    <tr><td>包名</td><td><code>minecraft-react-ui</code>（npm 已被占用）</td><td>同名 → 无法发布</td><td><span class="pill ok">已改</span> <code>@iicemeta/minecraft-react-ui</code></td></tr>
+    <tr><td><code>.npmignore</code></td><td>有</td><td>无</td><td><span class="pill warn">不需要</span> 改用 <code>files: ["dist","USAGE.md"]</code></td></tr>
+  </tbody>
+</table>
+
+<div class="verdict" style="border-left-color:var(--warn)">
+  <strong style="color:var(--warn)">为什么不照抄 upstream 的 <code>.npmrc</code></strong><br />
+  upstream 在仓库根提交了 <code>//registry.npmjs.org/:_authToken=${NPM_TOKEN}</code>。
+  <b>项目级 <code>.npmrc</code> 优先级高于用户级 <code>~/.npmrc</code></b>，所以当 <code>NPM_TOKEN</code> 未设置时，
+  它会注入一个<b>空 token</b>，静默顶掉 <code>npm login</code> 刚写进 <code>~/.npmrc</code> 的凭据。症状：
+  <div style="font-family:var(--mono);font-size:12.5px;background:#f0f2f5;border-radius:6px;padding:10px 12px;margin:10px 0;white-space:pre-wrap">$ npm login     <span style="color:var(--muted)"># 成功</span>
+$ npm whoami
+npm error code E401</div>
+  用 <code>npm config list</code> 可确认：
+  <div style="font-family:var(--mono);font-size:12.5px;background:#f0f2f5;border-radius:6px;padding:10px 12px;margin:10px 0;white-space:pre-wrap">; //registry.npmjs.org/:_authToken = (protected) ; overridden by project</div>
+  正确做法：本地靠 <code>npm login</code> 写 <code>~/.npmrc</code>；CI 靠 <code>actions/setup-node</code> 的 <code>registry-url</code> 自行生成 runner 内 <code>.npmrc</code> 并读取 <code>NODE_AUTH_TOKEN</code>。
+  仓库两边都不需要 <code>.npmrc</code>，已从仓库删除；<code>.npmrc</code> 保留在 <code>.gitignore</code> 中防止误提交。
+</div>
+
+<h2>5 · 构建与安装验证（实测）</h2>
+<table>
+  <thead><tr><th style="width:34%">检查</th><th style="width:14%">结果</th><th>证据</th></tr></thead>
+  <tbody>
+    <tr><td><code>npm run typecheck</code></td><td><span class="pill ok">exit 0</span></td><td><code>tsc --noEmit</code> 无输出</td></tr>
+    <tr><td><code>npm run build</code></td><td><span class="pill ok">exit 0</span></td><td>61 modules · 1m5s · ES + CJS + d.ts + CSS 全部产出</td></tr>
+    <tr><td>产物字节</td><td><span class="pill info">实测</span></td><td><code>index.js</code> 27.1 kB · <code>index.cjs</code> 16.6 kB · <code>index.d.ts</code> 10.5 kB · <code>minecraft-react-ui.css</code> 21.3 kB</td></tr>
+    <tr><td><code>exports["./style.css"]</code> 路径匹配</td><td><span class="pill ok">命中</span></td><td><code>cssFileName</code> 生效，产出 <code>dist/minecraft-react-ui.css</code></td></tr>
+    <tr><td><code>npm pack</code> 内容</td><td><span class="pill ok">10 文件</span></td><td>61.3 kB packed / 257.6 kB unpacked</td></tr>
+    <tr><td>真实消费端安装（tarball）</td><td><span class="pill ok">ALL PASS</span></td><td>28 项断言全绿：20 个 ESM 具名导出、20 个 CJS 导出（数量一致）、SSR 渲染出 443 B 标记、<code>style.css</code> 含 <code>:root</code> 变量且 mixin 已展开</td></tr>
+    <tr><td><code>npm whoami</code></td><td><span class="pill ok">iicemeta</span></td><td>exit 0</td></tr>
+    <tr><td><code>npm publish --dry-run</code></td><td><span class="pill ok">exit 0</span></td><td>auth 通过 → <code>prepublishOnly</code> 构建 → 10 文件 / 61.3 kB → <code>Publishing ... (dry-run)</code></td></tr>
+  </tbody>
+</table>
+
+<h2>6 · 线上现状核对（1.0.0）</h2>
+<table>
+  <thead><tr><th style="width:34%">检查</th><th style="width:14%">结果</th><th>证据</th></tr></thead>
+  <tbody>
+    <tr><td><code>1.0.0</code> 是否真的上线</td><td><span class="pill ok">已上线</span></td><td>packument 返回 <code>dist-tags: {latest: "1.0.0"}</code>，versions <code>["0.0.0-stage", "1.0.0"]</code></td></tr>
+    <tr><td>线上 tarball 是否等于本地构建</td><td><span class="pill ok">字节一致</span></td><td>下载线上 tarball，shasum <code>84c786e0b0455ba4027df6358706a1b1c89c6ca3</code>，与本地可复现打包完全相同；10 文件</td></tr>
+    <tr><td>网页上的 "# Temporary Holding Version"</td><td><span class="pill info">缓存滞后</span></td><td>那是 <code>0.0.0-stage</code> 占位版页面。npm 分阶段发布在建包时会自动创建该占位版；registry 已报 <code>latest: 1.0.0</code>，而 npmjs.com 页面未跟上</td></tr>
+    <tr><td>待审批的分阶段包</td><td><span class="pill ok">无</span></td><td><code>npm stage list</code> → <code>[]</code></td></tr>
+    <tr><td>版本号</td><td><span class="pill ok">1.0.1</span></td><td><code>1.0.0</code> 已被占用，正式发布从 <code>1.0.1</code> 起</td></tr>
+  </tbody>
+</table>
+
+<h2>7 · 发布流水线（<code>v*</code> tag 触发）</h2>
+<table>
+  <thead><tr><th style="width:34%">检查</th><th style="width:14%">结果</th><th>证据</th></tr></thead>
+  <tbody>
+    <tr><td>workflow YAML 解析</td><td><span class="pill ok">OK</span></td><td><code>on.push.tags=[v*]</code> · <code>permissions={id-token: write, contents: write}</code> · 10 步</td></tr>
+    <tr><td>action 引用存在性</td><td><span class="pill ok">已核实</span></td><td>GitHub API：<code>actions/checkout</code> 最新 <code>v7.0.1</code>、<code>actions/setup-node</code> 最新 <code>v7.0.0</code>；<code>package-manager-cache</code> 输入在 <code>setup-node@v7/action.yml</code> 中确认存在</td></tr>
+    <tr><td>tag / version 闸门</td><td><span class="pill ok">行为正确</span></td><td>拿真实 <code>package.json</code> 本地执行：<code>v1.0.1</code> → exit 0；<code>v1.0.0</code> → exit 1；<code>v2.0.0</code> → exit 1</td></tr>
+    <tr><td>发布模式开关</td><td><span class="pill ok">行为正确</span></td><td>未设置 → <code>npm publish</code>；<code>stage</code> → <code>npm stage publish</code></td></tr>
+    <tr><td>认证方式</td><td><span class="pill ok">OIDC</span></td><td>可信发布，无 <code>NPM_TOKEN</code> secret；全文件断言不含 <code>NODE_AUTH_TOKEN</code>（否则会注入空 token 顶掉 OIDC）</td></tr>
+    <tr><td>推送 tag</td><td><span class="pill warn">未执行</span></td><td>刻意留给维护者本人触发</td></tr>
+  </tbody>
+</table>
+
+<h2>8 · 明确不做的</h2>
+<ul>
+  <li>Storybook <code>*.stories.tsx</code>（15 个）与 <code>index.stories.mdx</code> 不回收 —— 那是文档，已被 <code>demo/</code> 取代，且不进发布产物。</li>
+  <li>不把 <code>propTypes</code> 加回去 —— React 19 已移除函数组件 <code>defaultProps</code>，回退会引入既失效又误导的运行时校验。</li>
+  <li>不在 workflow 里设 <code>NODE_AUTH_TOKEN</code> —— 空值会写进 runner 的 <code>.npmrc</code> 并顶掉 OIDC，与本地 <code>E401</code> 是同一个坑。</li>
+</ul>
+
+</div>
+</body>
+</html>

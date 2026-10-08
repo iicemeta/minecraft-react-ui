@@ -1,0 +1,121 @@
+name: Release
+
+# Tag-driven release.
+#   git tag v1.0.1 && git push origin v1.0.1
+#     -> verifies the tag matches package.json
+#     -> typechecks + builds
+#     -> publishes @iicemeta/minecraft-react-ui to npm
+#     -> creates the GitHub Release and attaches the npm tarball
+#
+# Auth is OIDC trusted publishing: no NPM_TOKEN secret is required or used.
+# The npm package must have a trusted publisher configured for this exact
+# workflow filename (`release.yml`), repo `iicemeta/minecraft-react-ui`.
+# See: https://docs.npmjs.com/trusted-publishers
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  id-token: write # OIDC -> npm trusted publishing
+  contents: write # create the GitHub Release
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history so --generate-notes can build the changelog
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          package-manager-cache: false # never cache in release builds
+
+      # npm stage publish requires npm >= 11.15.0; trusted publishing needs
+      # >= 11.5.1. The npm bundled with Node 24 can be older than that.
+      - name: Ensure a recent npm
+        run: |
+          npm install --global npm@latest
+          echo "node $(node --version)"
+          echo "npm  $(npm --version)"
+
+      # Gate 1: the tag is the source of truth for the release version.
+      - name: Verify tag matches package.json
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME#v}"
+          pkg="$(node -p "require('./package.json').version")"
+          echo "tag          = $tag"
+          echo "package.json = $pkg"
+          if [ "$tag" != "$pkg" ]; then
+            echo "::error::Tag '${GITHUB_REF_NAME}' does not match package.json version '${pkg}'. Bump package.json or retag."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Gate 2: nothing ships if it does not typecheck.
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      # Pack once, up front: the same dist/ that we hash and attach to the
+      # Release is the dist/ that npm publishes below.
+      - name: Pack the artifact
+        run: |
+          set -euo pipefail
+          npm pack
+          tarball="$(ls -1 ./*.tgz | head -1)"
+          echo "TARBALL=$tarball" >> "$GITHUB_ENV"
+          {
+            echo "### Build artifact"
+            echo
+            echo '```'
+            ls -la dist/
+            sha256sum "$tarball"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # --ignore-scripts: dist/ is already built and verified above, so skip the
+      # prepublishOnly rebuild and publish exactly what was hashed.
+      #
+      # Direct publish requires the trusted publisher to have "Allow npm publish"
+      # enabled. If it is stage-only, set the repository variable
+      # NPM_PUBLISH_MODE=stage and a maintainer approves with 2FA afterwards.
+      - name: Publish to npm
+        env:
+          NPM_PUBLISH_MODE: ${{ vars.NPM_PUBLISH_MODE || 'publish' }}
+        run: |
+          set -euo pipefail
+          if [ "${NPM_PUBLISH_MODE}" = "stage" ]; then
+            echo "::notice::Staged publish. A maintainer must run 'npm stage list' then 'npm stage approve <id>' (2FA) to make it live."
+            npm stage publish --access public --ignore-scripts --provenance
+          else
+            npm publish --access public --ignore-scripts --provenance
+          fi
+
+      # Only reached when the publish above succeeded.
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes \
+            --verify-tag \
+            "./${TARBALL}"

@@ -3,3 +3,6 @@ dist
 demo-dist
 *.local
 .DS_Store
+
+# never commit the npm auth token
+.npmrc

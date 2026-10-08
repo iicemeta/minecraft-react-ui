@@ -10,7 +10,7 @@ import {
 import { cn } from "@/utils/cn";
 import "./Tooltip.css";
 
-type TooltipProps = {
+export type TooltipProps = {
   content: React.ReactNode;
   children: React.ReactNode;
   placement?: Placement;
