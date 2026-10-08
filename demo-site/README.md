@@ -106,9 +106,9 @@ pick `iicemeta/minecraft-react-ui`, then set:
 
 | Setting | Value |
 | --- | --- |
-| Production branch | `main` (or whichever branch ships the site) |
+| Production branch | **`demo/site`** — see the note below |
 | **Root directory (advanced)** | `demo-site` |
-| Framework preset | `Vite` |
+| Framework preset | `React (Vite)` |
 | Build command | `npm run build` |
 | Build output directory | `dist` |
 
@@ -116,13 +116,30 @@ Setting the **root directory** matters: the showcase lives in a subdirectory of
 the repository, and without it Pages would install the library's dependencies and
 build the library instead of the site.
 
-Add an environment variable if the default Node is too old:
+**The production branch has to be `demo/site`.** `demo-site/` exists on that branch
+only, so pointing the project at `main` makes Pages build the library and then fail
+with a missing output directory. If this branch is ever merged into `main`, change
+the field at the same time.
 
-```
-NODE_VERSION = 22
-```
+Two more things the build command gives you for free:
+
+- it runs `tsc --noEmit` before `vite build`, so a type error fails the deployment
+  instead of shipping a broken bundle;
+- `public/_headers` and `public/_redirects` are Pages-native conventions and Vite
+  copies `public/` into `dist/`, so both reach the edge without extra configuration.
+
+Node 22 is already the default of Pages' v3 build image (Node 22.16.0, npm 10.9.2)
+and `.nvmrc` pins it as well, so **no environment variable is needed**. If a build
+ever reports an unexpected Node version, set `NODE_VERSION` under **Settings →
+Environment variables** — the v3 image ignores the `engines` field in
+`package.json`, so `.nvmrc` or the variable is what counts.
 
 Every push to the production branch redeploys; other branches get preview URLs.
+
+Cloudflare currently steers *new* projects towards Workers with static assets, and
+Pages is the older of the two. Pages remains fully supported and is the simpler fit
+for a pure static build like this one: the git-connected flow, preview deployments
+and the `_headers` / `_redirects` conventions are all built in.
 
 ### Option B — deploy from the CLI
 
