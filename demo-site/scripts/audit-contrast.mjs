@@ -139,6 +139,7 @@ for (const theme of ["dark", "light"]) {
     ["switch knob on",           resolve("--switch-bg-checked-color"), resolve("--text-color-invert"), 3.0],
     ["slider rail fill (base)",  resolve("--primary-color"),       resolve("--secondary-color"),  3.0],
     ["site body text",           resolve("--site-text"),           resolve("--site-bg"),          4.5],
+    ["dropdown panel title",     resolve("--site-text"),           resolve("--site-panel"),       4.5],
     ["site dim text",            resolve("--site-text-dim"),       resolve("--site-panel"),       4.5],
     ["site faint text",          resolve("--site-text-faint"),     resolve("--site-panel"),       4.5],
     ["site faint on panel-2",    resolve("--site-text-faint"),     resolve("--site-panel-2"),     4.5],

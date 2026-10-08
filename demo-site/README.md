@@ -72,9 +72,26 @@ npm run audit:contrast
 
 resolves the palette the way the browser would and asserts that every ink/surface
 pair the library paints clears its WCAG threshold (4.5:1 for text, 3:1 for
-graphics). It currently passes 34/34 across both themes. It is a standalone check
+graphics). It currently passes 35/35 across both themes. It is a standalone check
 rather than part of `npm run build`, so a library colour change surfaces as a
 failed audit instead of a broken deploy.
+
+## Portalled content
+
+`Dropdown` and `Tooltip` render their panel into `document.body` through a React
+portal, so the panel is a sibling of `#root` and inherits nothing from the page
+around it. Two consequences worth knowing before you style anything that goes in
+there:
+
+- **The library's `.Dropdown` wrapper carries no chrome** — no background,
+  border, padding or shadow. `.Tooltip` and `.Menu` do bring their own, but
+  anything you hand to `Dropdown` as `content` has to supply its own surface, or
+  it gets painted transparently over whatever it floats above. `.dropdown-panel`
+  in `src/styles/site.css` is where this site does that.
+- **The library sets no `z-index`**, so an open panel loses to the site's own
+  chrome — the sticky topbar (40) and the mobile drawer (35). `site.css` lifts
+  `.Dropdown` and `.Tooltip` to 60 for that reason. `DropdownMenu` and `Select`
+  both build on `Dropdown`, so they inherit it.
 
 ## Deploying to Cloudflare Pages
 

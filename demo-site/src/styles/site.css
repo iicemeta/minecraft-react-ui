@@ -834,9 +834,21 @@ code {
   min-width: 1.6em;
 }
 
+/* The library's .Dropdown is nothing but a wrapper — it ships display:none /
+   display:initial and no background, border, padding, shadow or z-index — and
+   it portals its content to <body>. So anything passed as `content` has to
+   bring its own surface, or it gets painted transparently over whatever it
+   floats above. Skipping that is what made the panel text interleave with the
+   code sample sitting directly underneath it. (The library's own popups do
+   carry chrome: .Tooltip and .Menu each set their own background.) */
 .dropdown-panel {
   max-width: 260px;
   padding: 12px 14px;
+  border: 1px solid var(--site-border-strong);
+  border-radius: var(--site-radius);
+  background: var(--site-panel);
+  box-shadow: var(--site-shadow);
+  font-size: 0.86rem;
 }
 
 .dropdown-panel strong {
@@ -846,8 +858,18 @@ code {
 
 .dropdown-panel p {
   margin: 0;
-  color: var(--foreground-color);
+  color: var(--site-text-dim);
   font-size: 0.84rem;
+}
+
+/* Portal stacking. .Dropdown and .Tooltip are portalled to <body> as siblings
+   of #root, and the library gives neither a z-index, so by default the site's
+   own chrome wins: an open panel slides under the sticky topbar (40) or the
+   mobile drawer (35). Lift the library's two portal roots above it. Note that
+   DropdownMenu and Select both build on .Dropdown, so they inherit this. */
+.Dropdown,
+.Tooltip {
+  z-index: 60;
 }
 
 .custom-target {
