@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minecraft React UI — component showcase</title>
+    <meta
+      name="description"
+      content="Every component in @iicemeta/minecraft-react-ui, live and interactive. A React 19 Minecraft-styled UI library."
+    />
+    <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/minercraftory" />
+    <script>
+      // Resolve the theme before first paint so there is no flash of the
+      // wrong palette. Keep this in sync with src/lib/theme.ts.
+      (function () {
+        try {
+          var pref = localStorage.getItem("mc-theme") || "auto";
+          var systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var resolved = pref === "auto" ? (systemDark ? "dark" : "light") : pref;
+          document.documentElement.dataset.theme = resolved;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

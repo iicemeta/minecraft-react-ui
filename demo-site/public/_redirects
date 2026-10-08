@@ -1,0 +1,3 @@
+# Cloudflare Pages SPA fallback. Routing is hash-based so this is a safety net
+# for direct hits on deep links (and for a future switch to history routing).
+/*    /index.html   200
