@@ -36,10 +36,45 @@ npm run dev        # http://localhost:5174
 The library's own gallery uses port 5173, so this one stays out of its way.
 
 ```bash
-npm run typecheck  # tsc --noEmit
-npm run build      # tsc --noEmit && vite build  ->  dist/
-npm run preview    # serve the production build
+npm run typecheck        # tsc --noEmit
+npm run build            # tsc --noEmit && vite build  ->  dist/
+npm run preview          # serve the production build
+npm run audit:contrast   # WCAG check of both themes (see below)
 ```
+
+## Theming and the light-mode adapter
+
+The site offers `auto` / `light` / `dark` and defaults to following the OS. Dark
+is the library's palette exactly as shipped; light overrides it in
+`src/styles/site.css`.
+
+That override needs a small adapter, because the library has no single "ink that
+sits on a given surface" variable. Two of its variables are overloaded:
+
+- `--text-color` is both the page ink **and** the ink drawn on the green
+  `--primary-color` surface (primary buttons, the checked checkbox tick, the
+  radio dot).
+- `--text-color-invert` is both the ink on the light-grey `--secondary-color`
+  surface (Tags, secondary buttons) **and** the background of empty controls
+  (the empty checkbox/radio box, the switch track).
+
+The shipped dark theme gets away with this because each overloaded pair happens
+to want the same value. A light theme cannot — the page ink must be dark while
+the empty slots must stay light — so `src/styles/site.css` re-points a handful of
+component variables to unpick the couplings. Every override is commented with the
+library rule it corrects. **The library itself is not modified.**
+
+Because that adapter depends on the library's internal variables, it is guarded:
+
+```bash
+npm run audit:contrast
+```
+
+resolves the palette the way the browser would and asserts that every ink/surface
+pair the library paints clears its WCAG threshold (4.5:1 for text, 3:1 for
+graphics). It currently passes 34/34 across both themes. It is a standalone check
+rather than part of `npm run build`, so a library colour change surfaces as a
+failed audit instead of a broken deploy.
 
 ## Deploying to Cloudflare Pages
 

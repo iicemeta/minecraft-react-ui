@@ -29,7 +29,7 @@
   --site-border-strong: #4a4f58;
   --site-text: #eef1f5;
   --site-text-dim: #9aa3ae;
-  --site-text-faint: #6f7883;
+  --site-text-faint: #949ea9;
   --site-accent: #50ad2e;
   --site-accent-ink: #0d1a08;
   --site-code-bg: #1b1e24;
@@ -47,7 +47,7 @@
   --site-border-strong: #c2cad3;
   --site-text: #16191d;
   --site-text-dim: #5a646f;
-  --site-text-faint: #8b949e;
+  --site-text-faint: #67707c;
   --site-accent: #2f7a1f;
   --site-accent-ink: #ffffff;
   --site-code-bg: #f6f8fa;
@@ -56,7 +56,15 @@
 
   /* --- library palette override -----------------------------------------
      The components read these; see src/styles/minecraft-ui.css in the
-     library for the authoritative list. */
+     library for the authoritative list.
+
+     `--text-color-invert` is deliberately kept LIGHT here. The library uses it
+     for two different jobs: the ink drawn on the light-grey `--secondary-color`
+     surface, and the background of empty controls (the empty checkbox/radio
+     box, the switch track). In the shipped dark theme both jobs happen to want
+     the same near-black value, but in a light theme they diverge: the slots must
+     stay light to read as empty slots. So the slots keep this variable and the
+     ink job is re-pointed in the adapter below. */
   --background-color: #eef1f5;
   --midground-color: #cfd6de;
   --foreground-color: #6f7885;
@@ -85,12 +93,60 @@
   --error-color: #b3261e;
 
   --text-color: #16191d;
-  --text-color-invert: #f7f9fb;
+  --text-color-invert: #f5f8fb;
 
   --bezel-color: rgba(0, 0, 0, 0.18);
   --bezel-color-semi: rgba(0, 0, 0, 0.09);
   --bezel-color-invert: rgba(255, 255, 255, 0.9);
 }
+
+/* ------------------------------------------------- light-mode adapter --- */
+
+/* The library has no single "ink that sits on a given surface" variable.
+   --text-color serves both the page text and the ink on the green
+   --primary-color; --text-color-invert serves both the ink on the light-grey
+   --secondary-color and the background of empty controls. A dark theme gets
+   away with that because both pairings collapse to one value per variable.
+   A light theme cannot, so the couplings are unpicked here — CSS only, the
+   library itself is untouched. Each override is annotated with the rule it
+   corrects. */
+
+/* White tick and dot on the green checked control.
+   Checkbox.css:61  .Checkbox:checked:after { background: var(--checkbox-text-color) }
+   Radio.css:60     .Radio:checked:after    { background: var(--radio-text-color) }  */
+:root[data-theme="light"] {
+  --checkbox-text-color: #ffffff;
+  --radio-text-color: #ffffff;
+}
+
+/* White label on the green primary button, matching the dark theme.
+   Button.css:74-76 .Button_primary { --button-text-color: var(--text-color) }  */
+:root[data-theme="light"] .Button_primary {
+  --button-text-color: #ffffff;
+  --button-text-hover-color: #ffffff;
+  --button-text-active-color: #ffffff;
+}
+
+/* Dark ink on the light-grey secondary button — this is the reported bug.
+   Button.css:104-106 .Button_secondary { --button-text-color: var(--text-color-invert) }  */
+:root[data-theme="light"] .Button_secondary {
+  --button-text-color: var(--text-color);
+  --button-text-hover-color: var(--text-color);
+  --button-text-active-color: var(--text-color);
+}
+
+/* Dark ink on the light-grey Tag. Tag.css:5 .Tag { color: var(--text-color-invert) }  */
+:root[data-theme="light"] .Tag {
+  color: var(--text-color);
+}
+
+/* The clear variant's hover wash is a hard-coded light rgba (Button.css:81-82),
+   which is invisible on a light page. Repoint it to a dark wash. */
+:root[data-theme="light"] .Button_clear {
+  --button-bg-hover-color: rgba(22, 25, 29, 0.08);
+  --button-bg-active-color: rgba(22, 25, 29, 0.14);
+}
+
 
 /* ---------------------------------------------------------------- base --- */
 
